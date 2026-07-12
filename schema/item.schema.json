@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/item.schema.json",
+  "title": "Stonetop Item (third-party content)",
+  "description": "Frontmatter contract for an inventory/special item. Maps to Sled Dog's GearCatalogEntry. A bespoke custom move (if any) belongs in `note` for now.",
+  "type": "object",
+  "required": ["kind", "name", "label", "tags", "value", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "item" },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name. Sled Dog derives the folder slug and namespaced key from it."
+    },
+    "label": {
+      "enum": ["weapons", "armor", "camp", "tools", "writing", "transport", "trade", "misc"],
+      "description": "Which add-gear group it appears under."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Gear tags (range, damage, quality, material)."
+    },
+    "value": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4,
+      "description": "Relative Value 0–4 (see the Stonetop gear legend)."
+    },
+    "load": { "type": "integer", "minimum": 0, "description": "Load slots per unit; defaults to 1 when unset." },
+    "small": { "type": "boolean", "description": "A small possession (circle slot, no Load)." },
+    "uses": { "type": "integer", "minimum": 0, "description": "Consumable use-circles seeded onto the added item." },
+    "note": { "type": "string", "description": "Clarifying note carried into the item's notes (also holds a custom move's text for now)." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  }
+}
