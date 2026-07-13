@@ -5,6 +5,8 @@
 # Do NOT add a `number:` field; Sled Dog assigns third-party deck numbers.
 kind: arcanum
 slug: my-arcanum            # kebab-case, no leading "the-"
+summary: >-                 # 1–2 sentences on what it does (shown on Manage content)
+  A short description of what this arcanum does and why a table would want it.
 rarity: minor              # minor | major
 # location: false          # optional — true if the unrevealed front is a place
 # stats: [WIS]             # optional — STR | DEX | CON | INT | WIS | CHA

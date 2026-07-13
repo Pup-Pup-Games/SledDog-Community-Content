@@ -5,6 +5,8 @@
 # (Sled Dog can't yet model item-granted moves as a first-class mechanic).
 kind: item
 name: My Item Name         # Sled Dog derives the slug + key from this
+summary: >-                 # 1–2 sentences on what it is/does (shown on Manage content)
+  A short description of what this item is and what it does at the table.
 label: misc                # weapons | armor | camp | tools | writing | transport | trade | misc
 tags: [a-tag, another-tag]
 value: 1                   # relative Value 0–4

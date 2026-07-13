@@ -4,7 +4,7 @@
   "title": "Stonetop Item (third-party content)",
   "description": "Frontmatter contract for an inventory/special item. Maps to Sled Dog's GearCatalogEntry. A bespoke custom move (if any) belongs in `note` for now.",
   "type": "object",
-  "required": ["kind", "name", "label", "tags", "value", "author", "author_url"],
+  "required": ["kind", "name", "summary", "label", "tags", "value", "author", "author_url"],
   "additionalProperties": false,
   "properties": {
     "kind": { "const": "item" },
@@ -12,6 +12,11 @@
       "type": "string",
       "minLength": 1,
       "description": "Display name. Sled Dog derives the folder slug and namespaced key from it."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One or two sentences on what this item is/does — shown on the party's Manage content page so owners know what they're adding."
     },
     "label": {
       "enum": ["weapons", "armor", "camp", "tools", "writing", "transport", "trade", "misc"],

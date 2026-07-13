@@ -4,7 +4,7 @@
   "title": "Stonetop Arcanum (third-party content)",
   "description": "Frontmatter contract for an arcanum. Maps to Sled Dog's ArcanumDef. Do NOT set `number` — Sled Dog assigns third-party deck numbers automatically in a reserved band.",
   "type": "object",
-  "required": ["kind", "slug", "rarity", "author", "author_url", "front", "back"],
+  "required": ["kind", "slug", "summary", "rarity", "author", "author_url", "front", "back"],
   "additionalProperties": false,
   "properties": {
     "kind": { "const": "arcanum" },
@@ -12,6 +12,11 @@
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ppg:<slug>)."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One or two sentences on what this arcanum does — shown on the party's Manage content page so owners know what they're adding."
     },
     "rarity": { "enum": ["minor", "major"] },
     "location": {
