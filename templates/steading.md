@@ -13,6 +13,12 @@ requireCount: null         # null = need all; a number = need any N of them
 effects: >-
   What acquiring it does (resource/track changes), its henceforth move in
   prose, and its upkeep — all as descriptive text.
+impacts:                   # resource tracks it impacts (colored labels + filters); [] if none
+  - fortunes               # fortunes | prosperity | surplus | defenses | population
+seasons: 2                 # minimum seasons to complete; omit or null if the rules state none
+# grants_moves:            # optional: Home Front move(s) granted to every character on acquire
+#   - name: The Move Name
+#     text: When you …, roll +Fortunes: on a 10+ …
 author: Your Name
 author_url: https://your-site.example
 ---

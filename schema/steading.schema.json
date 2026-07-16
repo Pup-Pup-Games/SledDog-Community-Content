@@ -31,6 +31,33 @@
       "minLength": 1,
       "description": "What acquiring it does and its henceforth/upkeep rules, as prose."
     },
+    "impacts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["fortunes", "prosperity", "surplus", "defenses", "population"]
+      },
+      "uniqueItems": true,
+      "description": "Resource tracks the effect impacts (colored labels + filters). May be empty (e.g. an improvement that only grants a move)."
+    },
+    "seasons": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Minimum seasons to complete (best-guess from the requirement text). Omit or null when the rules state none."
+    },
+    "grants_moves": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "text": { "type": "string", "minLength": 1 }
+        }
+      },
+      "description": "Home Front moves granted to every party character when the GM marks it acquired."
+    },
     "author": { "type": "string", "minLength": 1 },
     "author_url": { "type": "string", "format": "uri" }
   }
