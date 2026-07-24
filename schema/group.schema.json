@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/group.schema.json",
+  "title": "Stonetop Group / Organization (third-party content)",
+  "description": "Frontmatter contract for a faction/group. Maps to a Sled Dog World organization entry (name/description/notes/relations columns + a rich `details` payload).",
+  "type": "object",
+  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "group" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the party's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Who They Are — what the group is, how it operates, its sign."
+    },
+    "background": {
+      "type": "string",
+      "description": "One paragraph: how the group came to be; keep one thing hidden."
+    },
+    "agenda": { "type": "string", "description": "What they act to bring about." },
+    "method": { "type": "string", "description": "How they pursue it." },
+    "faultLine": { "type": "string", "description": "The internal split that could break them." },
+    "members": {
+      "type": "array",
+      "description": "Notable members.",
+      "items": { "$ref": "#/$defs/member" }
+    },
+    "statBlock": { "$ref": "#/$defs/statBlock" },
+    "relations": {
+      "type": "array",
+      "description": "Ties & Relationships — loaded prompts addressed to the characters.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the group pulls a table into motion.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "member": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "note": { "type": ["string", "null"], "description": "Their role/epithet and what they're about." }
+      }
+    },
+    "statBlock": {
+      "type": "object",
+      "description": "A ready-to-run stat block in the Stonetop house format (a representative member).",
+      "additionalProperties": false,
+      "properties": {
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "hp": { "type": ["integer", "null"], "minimum": 0 },
+        "armor": { "type": ["integer", "null"], "minimum": 0 },
+        "damage": { "type": ["string", "null"] },
+        "special": { "type": ["string", "null"] },
+        "instinct": { "type": ["string", "null"] },
+        "moves": {
+          "type": "array",
+          "description": "The instinct's GM-move lines (the `>` bullets).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
