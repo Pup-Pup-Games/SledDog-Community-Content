@@ -20,7 +20,14 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import matter from "gray-matter";
 
-const KINDS = { arcanum: "arcanum.schema.json", item: "item.schema.json", steading: "steading.schema.json" };
+const KINDS = {
+  arcanum: "arcanum.schema.json",
+  item: "item.schema.json",
+  steading: "steading.schema.json",
+  npc: "npc.schema.json",
+  group: "group.schema.json",
+  location: "location.schema.json",
+};
 const IN_CI = process.env.GITHUB_ACTIONS === "true";
 
 function parseArgs(argv) {

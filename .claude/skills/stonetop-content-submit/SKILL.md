@@ -1,6 +1,6 @@
 ---
 name: stonetop-content-submit
-description: Turn an author's description of a Stonetop arcanum, item, or steading improvement into a schema-compliant content file for this repo (Markdown + YAML frontmatter under content/<kind>/<slug>/<slug>.md), then verify it with the repo's own validator. Use when someone wants to submit/add/author third-party Stonetop content for Sled Dog, or says "add my arcanum", "make this item compliant", "turn this into a submission", "prep my steading improvement for a PR". Runs in this repo (SledDog-3rd-Party-Content). Does NOT open the PR for the user or invent game mechanics.
+description: Turn an author's description of a Stonetop arcanum, item, steading improvement, NPC, group, or location into a schema-compliant content file for this repo (Markdown + YAML frontmatter under content/<kind>/<slug>/<slug>.md), then verify it with the repo's own validator. Use when someone wants to submit/add/author third-party Stonetop content for Sled Dog, or says "add my arcanum", "make this item compliant", "turn this into a submission", "prep my steading improvement for a PR", "add my NPC/group/location". Runs in this repo (SledDog-3rd-Party-Content). Does NOT open the PR for the user or invent game mechanics.
 ---
 
 # Stonetop content submission
@@ -22,11 +22,15 @@ Your job is to reach that state without changing the author's intended mechanics
 
 ## Procedure (follow in order)
 
-1. **Determine the `kind`** — `arcanum`, `item`, or `steading`. If the author hasn't
-   said, ask. (This is the only judgment call in the process.)
+1. **Determine the `kind`** — `arcanum`, `item`, `steading`, `npc`, `group`, or
+   `location`. If the author hasn't said, ask. (This is the only judgment call in the
+   process.)
    - Two-faced magic item / working with a discovery + reveal → **arcanum**
    - Something a character carries in their pack → **item**
    - A building/upgrade the whole steading works toward → **steading**
+   - One droppable person and the trouble they carry → **npc**
+   - A faction / organization the party bumps into → **group**
+   - A place a GM pins on the map and runs cold → **location**
 
 2. **Copy the template verbatim.** Start from `templates/<kind>.md` — do not
    hand-write the frontmatter from memory. It already has the right keys and comments.

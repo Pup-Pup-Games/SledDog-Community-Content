@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/npc.schema.json",
+  "title": "Stonetop NPC (third-party content)",
+  "description": "Frontmatter contract for a droppable NPC. Maps to a Sled Dog World NPC entry (name/description/notes/relations columns + a rich `details` payload).",
+  "type": "object",
+  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "npc" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the party's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Who They Are — one flavor paragraph: look, manner, voice, the tell."
+    },
+    "background": {
+      "type": "string",
+      "description": "One paragraph: where they came from and the wound/secret that drives them."
+    },
+    "drive": { "type": "string", "description": "What they'll act to get." },
+    "fear": { "type": "string", "description": "What they'll act to avoid." },
+    "secret": { "type": "string", "description": "The thing they'd never admit." },
+    "statBlock": { "$ref": "#/$defs/statBlock" },
+    "customMove": { "$ref": "#/$defs/customMove" },
+    "relations": {
+      "type": "array",
+      "description": "Bonds & Relationships — loaded prompts addressed to the characters.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the NPC pulls a table into motion.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "statBlock": {
+      "type": "object",
+      "description": "A ready-to-run stat block in the Stonetop house format.",
+      "additionalProperties": false,
+      "properties": {
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "hp": { "type": ["integer", "null"], "minimum": 0 },
+        "armor": { "type": ["integer", "null"], "minimum": 0 },
+        "damage": { "type": ["string", "null"] },
+        "special": { "type": ["string", "null"] },
+        "instinct": { "type": ["string", "null"] },
+        "moves": {
+          "type": "array",
+          "description": "The instinct's GM-move lines (the `>` bullets).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "customMove": {
+      "type": "object",
+      "description": "An optional bespoke `>` move that encodes what makes them singular.",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "trigger": { "type": ["string", "null"], "description": "The 'When you …' trigger clause." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
