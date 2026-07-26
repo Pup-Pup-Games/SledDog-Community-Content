@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/location.schema.json",
+  "title": "Stonetop Location (third-party content)",
+  "description": "Frontmatter contract for a droppable location. Maps to a Sled Dog World location entry (name/description columns + a rich `details` payload).",
+  "type": "object",
+  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "location" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the party's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Place — what it is, its history, why folk avoid (or want) it."
+    },
+    "impressions": {
+      "type": "array",
+      "description": "Sensory beats — what the party notices on arrival.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "features": {
+      "type": "array",
+      "description": "Keyed features/rooms.",
+      "items": { "$ref": "#/$defs/feature" }
+    },
+    "dangers": {
+      "type": "object",
+      "description": "The hazards and the thing that lives here.",
+      "additionalProperties": false,
+      "properties": {
+        "hazards": {
+          "type": "array",
+          "description": "Environmental dangers, as prose lines.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "statBlock": { "$ref": "#/$defs/statBlock" }
+      }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the location pulls a table into motion.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "required": ["name", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "statBlock": {
+      "type": "object",
+      "description": "A ready-to-run stat block in the Stonetop house format (what lurks here).",
+      "additionalProperties": false,
+      "properties": {
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "hp": { "type": ["integer", "null"], "minimum": 0 },
+        "armor": { "type": ["integer", "null"], "minimum": 0 },
+        "damage": { "type": ["string", "null"] },
+        "special": { "type": ["string", "null"] },
+        "instinct": { "type": ["string", "null"] },
+        "moves": {
+          "type": "array",
+          "description": "The instinct's GM-move lines (the `>` bullets).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
