@@ -4,7 +4,7 @@
 
 <h1 align="center">Sled Dog — Community Stonetop content</h1>
 
-<p align="center"><em>Player-made arcana, items, and steading improvements for <a href="https://sleddog.puppup.games">Sled Dog</a>.</em></p>
+<p align="center"><em>Player-made arcana, items, steading improvements, NPCs, groups, and locations for <a href="https://sleddog.puppup.games">Sled Dog</a>.</em></p>
 
 <p align="center">
   <a href="https://sleddog.puppup.games"><img src="repo-assets/cta-sleddog.PNG" alt="Play it in Sled Dog →"></a>
@@ -13,7 +13,7 @@
 
 This repository collects **third-party, unofficial** content for _Stonetop_ (by Jeremy Strandberg), submitted by the community. Anything merged here can be pulled into **[Sled Dog](https://sleddog.puppup.games)** — the Stonetop companion app — and offered to any table that turns on third-party content, **credited to its author with a link back**.
 
-Want to add your own arcanum, item, or steading improvement? See **[CONTRIBUTING.md](CONTRIBUTING.md)**. It takes a fork, a filled-in template, and a pull request that a GitHub Action checks for you.
+Want to add your own arcanum, item, steading improvement, NPC, group, or location? See **[CONTRIBUTING.md](CONTRIBUTING.md)**. It takes a fork, a filled-in template, and a pull request that a GitHub Action checks for you.
 
 > **Unofficial, fan-made work.** Not affiliated with, endorsed by, or sponsored by Lampblack & Brimstone or Jeremy Strandberg. You'll need a copy of _Stonetop_ to use this material.
 
@@ -21,7 +21,7 @@ Want to add your own arcanum, item, or steading improvement? See **[CONTRIBUTING
 
 ## What's in here
 
-- **[`content/`](content/)** — the submitted content, one folder per item (`arcana/`, `items/`, `steadings/`).
+- **[`content/`](content/)** — the submitted content, one folder per item (`arcana/`, `items/`, `steadings/`, `npcs/`, `groups/`, `locations/`).
 - **[`templates/`](templates/)** — fill-in-the-blank starting points for each kind.
 - **[`schema/`](schema/)** — the JSON Schema each submission must satisfy (the contract Sled Dog reads).
 - **[`CONTRIBUTING.md`](CONTRIBUTING.md)** — how to submit.

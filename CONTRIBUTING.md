@@ -5,11 +5,14 @@ Thank you for making Stonetop content for the community! This repo holds
 (the Stonetop companion app) can pull in and offer to tables that opt into
 third-party content — with **your name and a link on every item**.
 
-We currently accept three kinds of content:
+We currently accept six kinds of content:
 
 - **Arcana** — a two-faced magic item / working (a discovery, then a revealed arcanum).
 - **Items** — an inventory / special item a character carries.
 - **Steadings** — a steading improvement the whole village works toward.
+- **NPCs** — one droppable, ready-to-run person and the trouble they carry.
+- **Groups** — a faction / organization the party keeps bumping into.
+- **Locations** — a place a GM can pin on the map and run cold.
 
 (More types will open up as Sled Dog gains support for them.)
 
@@ -25,8 +28,9 @@ GitHub Action checks every pull request and tells you exactly what to fix.
 1. **Fork** this repo.
 2. **Start from a template** in [`templates/`](templates/) for your content kind.
    Copy it to `content/<kind>/<slug>/<slug>.md`, where `<kind>` is `arcana`,
-   `items`, or `steadings` and `<slug>` is a kebab-case name (no leading `the-`),
-   e.g. `content/arcana/whisper-jar/whisper-jar.md`.
+   `items`, `steadings`, `npcs`, `groups`, or `locations` and `<slug>` is a
+   kebab-case name (no leading `the-`), e.g.
+   `content/arcana/whisper-jar/whisper-jar.md`.
    *(Using Claude Code? Run the `stonetop-content-submit` skill in this repo — it
    fills the frontmatter from your description and runs the validator for you.)*
 3. **Fill in the frontmatter.** Put your real mechanics in — numbers, tags, move
