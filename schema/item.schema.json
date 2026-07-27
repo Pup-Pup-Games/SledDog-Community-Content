@@ -38,6 +38,6 @@
     "uses": { "type": "integer", "minimum": 0, "description": "Consumable use-circles seeded onto the added item." },
     "note": { "type": "string", "description": "Clarifying note carried into the item's notes (also holds a custom move's text for now)." },
     "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri" }
+    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
   }
 }

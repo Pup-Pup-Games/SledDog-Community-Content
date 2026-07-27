@@ -59,6 +59,6 @@
       "description": "Home Front moves granted to every party character when the GM marks it acquired."
     },
     "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri" }
+    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
   }
 }

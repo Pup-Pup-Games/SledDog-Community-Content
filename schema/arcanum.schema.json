@@ -29,7 +29,7 @@
       "items": { "enum": ["STR", "DEX", "CON", "INT", "WIS", "CHA"] }
     },
     "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri" },
+    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" },
     "front": {
       "type": "object",
       "description": "The discovery side — what a player sees before the arcanum is unlocked.",

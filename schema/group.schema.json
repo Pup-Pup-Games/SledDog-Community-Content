@@ -49,7 +49,7 @@
     },
     "notes": { "type": "string", "description": "Optional GM notes." },
     "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri" }
+    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
   },
   "$defs": {
     "member": {
