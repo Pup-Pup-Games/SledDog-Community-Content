@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/forged/district.schema.json",
+  "title": "Forged in the Dark District / Location (third-party content)",
+  "description": "Frontmatter contract for a droppable Forged-in-the-Dark district or location. Maps to a Sled Dog World location entry (name/description columns + a rich `details` payload). Write from the Blades in the Dark SRD vocabulary; use no Duskwall setting text, NPCs, art, or maps.",
+  "type": "object",
+  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "district" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the crew's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Place — what it is, who runs it, why folk go there (or stay away)."
+    },
+    "security": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "Relative security/watch presence 0–6 (informs Tier of opposition here)."
+    },
+    "wealth": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "Relative wealth 0–6."
+    },
+    "impressions": {
+      "type": "array",
+      "description": "Sensory beats — what the crew notices on arrival.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "features": {
+      "type": "array",
+      "description": "Keyed features / notable sites within the district.",
+      "items": { "$ref": "#/$defs/feature" }
+    },
+    "factions": {
+      "type": "array",
+      "description": "Factions with a stake here (name + a line on their interest).",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "scoreSeeds": {
+      "type": "array",
+      "description": "Trouble the district throws off — seeds for scores set here.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the district pulls a crew into motion.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "required": ["name", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

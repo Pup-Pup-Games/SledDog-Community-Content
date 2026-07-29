@@ -1,11 +1,13 @@
 # Contributing content
 
-Thank you for making Stonetop content for the community! This repo holds
+Thank you for making content for the community! This repo holds
 **third-party, unofficial** content that [Sled Dog](https://sleddog.puppup.games)
-(the Stonetop companion app) can pull in and offer to tables that opt into
-third-party content — with **your name and a link on every item**.
+can pull in and offer to tables that opt into third-party content — with **your
+name and a link on every item**.
 
-We currently accept six kinds of content:
+Content is organized **by game system**. We currently accept content for:
+
+**Stonetop** (by Jeremy Strandberg) — under `content/stonetop/`:
 
 - **Arcana** — a two-faced magic item / working (a discovery, then a revealed arcanum).
 - **Items** — an inventory / special item a character carries.
@@ -14,7 +16,16 @@ We currently accept six kinds of content:
 - **Groups** — a faction / organization the party keeps bumping into.
 - **Locations** — a place a GM can pin on the map and run cold.
 
-(More types will open up as Sled Dog gains support for them.)
+**Forged in the Dark** (based on *Blades in the Dark* by John Harper, One Seven
+Design, under CC-BY 3.0) — under `content/forged/`:
+
+- **Scores** — a droppable operation/situation a crew can take on.
+- **Factions** — a faction a GM can drop in and play cold.
+- **NPCs** — one unforgettable person and the trouble they carry.
+- **Districts** — a district or location to pin and run cold.
+- **Items** — a loadout item a character carries.
+
+(More systems and types will open up as Sled Dog gains support for them.)
 
 ## How it works
 
@@ -26,11 +37,14 @@ GitHub Action checks every pull request and tells you exactly what to fix.
 ## Submitting a piece of content
 
 1. **Fork** this repo.
-2. **Start from a template** in [`templates/`](templates/) for your content kind.
-   Copy it to `content/<kind>/<slug>/<slug>.md`, where `<kind>` is `arcana`,
-   `items`, `steadings`, `npcs`, `groups`, or `locations` and `<slug>` is a
+2. **Start from a template** in [`templates/<system>/`](templates/) for your
+   content kind. Copy it to `content/<system>/<kind>/<slug>/<slug>.md`, where
+   `<system>` is `stonetop` or `forged`, `<kind>` is one of that system's kinds
+   (Stonetop: `arcana`, `items`, `steadings`, `npcs`, `groups`, `locations`;
+   Forged: `scores`, `factions`, `npcs`, `districts`, `items`), and `<slug>` is a
    kebab-case name (no leading `the-`), e.g.
-   `content/arcana/whisper-jar/whisper-jar.md`.
+   `content/stonetop/arcana/whisper-jar/whisper-jar.md` or
+   `content/forged/scores/the-ledger-run/the-ledger-run.md`.
    *(Using Claude Code? Run the `stonetop-content-submit` skill in this repo — it
    fills the frontmatter from your description and runs the validator for you.)*
 3. **Fill in the frontmatter.** Put your real mechanics in — numbers, tags, move

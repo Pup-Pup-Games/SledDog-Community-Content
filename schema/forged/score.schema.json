@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/forged/score.schema.json",
+  "title": "Forged in the Dark Score (third-party content)",
+  "description": "Frontmatter contract for a Forged-in-the-Dark score — a droppable operation/situation the crew can take on. Maps to a Sled Dog expedition-style entry. Write from the Blades in the Dark SRD vocabulary; use no Duskwall setting text, NPCs, art, or maps.",
+  "type": "object",
+  "required": ["kind", "slug", "title", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "score" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "title": { "type": "string", "minLength": 1, "description": "The score's name." },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the crew's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Situation — the target, the opportunity, and why now."
+    },
+    "scoreType": {
+      "enum": ["assault", "deception", "stealth", "occult", "social", "transport"],
+      "description": "The kind of operation this is (informs the engagement roll)."
+    },
+    "target": { "type": "string", "description": "What the crew is after — the mark, the prize, the objective." },
+    "patron": { "type": "string", "description": "Who offers or benefits from the job, if anyone." },
+    "opposition": {
+      "type": "array",
+      "description": "Factions/forces standing in the way (name + a line on how they resist).",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "engagement": {
+      "type": "string",
+      "description": "Notes on the engagement roll — what raises or lowers the crew's starting position."
+    },
+    "obstacles": {
+      "type": "array",
+      "description": "Keyed complications/obstacles the crew will hit.",
+      "items": { "$ref": "#/$defs/obstacle" }
+    },
+    "clocks": {
+      "type": "array",
+      "description": "Progress/danger clocks driving the score.",
+      "items": { "$ref": "#/$defs/clock" }
+    },
+    "rewards": {
+      "type": "object",
+      "description": "What the score pays out.",
+      "additionalProperties": false,
+      "properties": {
+        "coin": { "type": "integer", "minimum": 0, "description": "Coin on a full success." },
+        "rep": { "type": "integer", "minimum": 0, "description": "Rep gained." },
+        "heat": { "type": "integer", "minimum": 0, "description": "Baseline heat the job draws." },
+        "notes": { "type": "string", "description": "Other payoffs — claims, assets, standing." }
+      }
+    },
+    "aftermath": {
+      "type": "array",
+      "description": "Consequences/entanglements that can follow.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the crew takes the job.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "obstacle": {
+      "type": "object",
+      "required": ["name", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "required": ["name", "segments"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "segments": { "type": "integer", "enum": [4, 6, 8, 10, 12], "description": "Clock size in segments." },
+        "note": { "type": ["string", "null"], "description": "What filling it means." }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

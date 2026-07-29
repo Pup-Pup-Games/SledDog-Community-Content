@@ -21,9 +21,9 @@ Want to add your own arcanum, item, steading improvement, NPC, group, or locatio
 
 ## What's in here
 
-- **[`content/`](content/)** — the submitted content, one folder per item (`arcana/`, `items/`, `steadings/`, `npcs/`, `groups/`, `locations/`).
-- **[`templates/`](templates/)** — fill-in-the-blank starting points for each kind.
-- **[`schema/`](schema/)** — the JSON Schema each submission must satisfy (the contract Sled Dog reads).
+- **[`content/`](content/)** — the submitted content, organized **by game system** (`content/<system>/<kind>/<slug>/`). Systems: `stonetop/` (arcana, items, steadings, npcs, groups, locations) and `forged/` (scores, factions, npcs, districts, items).
+- **[`templates/`](templates/)** — fill-in-the-blank starting points for each kind, under `templates/<system>/`.
+- **[`schema/`](schema/)** — the JSON Schema each submission must satisfy (the contract Sled Dog reads), under `schema/<system>/`.
 - **[`CONTRIBUTING.md`](CONTRIBUTING.md)** — how to submit.
 
 ## Play it in Sled Dog

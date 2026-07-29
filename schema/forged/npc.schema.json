@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/forged/npc.schema.json",
+  "title": "Forged in the Dark NPC (third-party content)",
+  "description": "Frontmatter contract for a droppable Forged-in-the-Dark NPC. Maps to a Sled Dog World NPC entry (name/description/notes/relations columns + a rich `details` payload). Write from the Blades in the Dark SRD vocabulary; use no Duskwall setting text, NPCs, art, or maps.",
+  "type": "object",
+  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "npc" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the crew's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Who They Are — look, manner, voice, the tell."
+    },
+    "faction": { "type": "string", "description": "The faction they belong to or serve, if any." },
+    "role": { "type": "string", "description": "Their trade or standing (a fence, a bluecoat, a spirit warden)." },
+    "background": {
+      "type": "string",
+      "description": "One paragraph: where they came from; the wound behind the want. Keep one thing hidden."
+    },
+    "wants": { "type": "string", "description": "What they'll act to get." },
+    "fears": { "type": "string", "description": "What they'll act to avoid." },
+    "secret": { "type": "string", "description": "The thing they'd never admit." },
+    "disposition": {
+      "enum": ["friend", "rival", "neutral"],
+      "description": "How they lean toward a crew by default."
+    },
+    "quirks": {
+      "type": "array",
+      "description": "Distinctive habits/tells the GM can play cold.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "relations": {
+      "type": "array",
+      "description": "Bonds & Relationships — loaded prompts addressed to the crew.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the NPC pulls a crew into motion.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

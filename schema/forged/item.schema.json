@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/forged/item.schema.json",
+  "title": "Forged in the Dark Item (third-party content)",
+  "description": "Frontmatter contract for a Forged-in-the-Dark loadout item. Maps to Sled Dog's gear catalog (a character's loadout). Write from the Blades in the Dark SRD vocabulary; original flavor only.",
+  "type": "object",
+  "required": ["kind", "name", "summary", "load", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "item" },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name. Sled Dog derives the folder slug and namespaced key from it."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One or two sentences on what this item is/does — shown on the Manage content page."
+    },
+    "kit": {
+      "enum": ["general", "playbook", "crew"],
+      "description": "Which loadout list it belongs to (a general item, a playbook item, or crew gear). Defaults to general when unset.",
+      "default": "general"
+    },
+    "load": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "Load cost 0–3 when carried (0 = negligible/worn)."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Descriptive tags (concealed, loud, unreliable, fine)."
+    },
+    "usage": {
+      "type": "string",
+      "description": "How it bears on the fiction / when it grants effect or position."
+    },
+    "note": { "type": "string", "description": "Clarifying note carried into the item's notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  }
+}

@@ -1,18 +1,23 @@
 #!/usr/bin/env node
 /**
- * Validates third-party Stonetop content files (Markdown + YAML frontmatter)
+ * Validates third-party Sled Dog content files (Markdown + YAML frontmatter)
  * against the shared JSON Schemas. This is the SAME validator that the CI
  * GitHub Action and the Sled Dog authoring skill run — "validate.mjs passes"
  * is the single, deterministic definition of a compliant submission.
+ *
+ * Content is organized SYSTEM-FIRST: content/<system>/<kind>/<slug>/<slug>.md,
+ * with one schema set per system under schema/<system>/. The `system` is derived
+ * from the path (the directory immediately under `content/`), and the file's
+ * `kind` frontmatter must be a kind that system defines.
  *
  * Usage:
  *   node scripts/validate.mjs                       # validate ./content against ./schema
  *   node scripts/validate.mjs --content <dir> --schema <dir>
  *   node scripts/validate.mjs path/to/one/file.md   # validate specific file(s)
  *
- * Note: cross-repo uniqueness and collisions with the OFFICIAL Stonetop
- * catalog are checked later, in Sled Dog's content loader (which has both
- * sources). Here we enforce schema compliance + uniqueness within this repo.
+ * Note: cross-repo uniqueness and collisions with the OFFICIAL catalogs are
+ * checked later, in Sled Dog's content loader (which has every source). Here we
+ * enforce schema compliance + uniqueness within this repo (namespaced by system).
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, relative, extname } from "node:path";
@@ -20,13 +25,29 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import matter from "gray-matter";
 
-const KINDS = {
-  arcanum: "arcanum.schema.json",
-  item: "item.schema.json",
-  steading: "steading.schema.json",
-  npc: "npc.schema.json",
-  group: "group.schema.json",
-  location: "location.schema.json",
+/**
+ * The kinds each system defines, mapped to their schema filename (under
+ * schema/<system>/). Adding a system = add an entry here + a schema/<system>/
+ * folder + a templates/<system>/ folder. Kind names may repeat across systems
+ * (e.g. `npc`, `item`) — they resolve against the system derived from the path.
+ */
+const SYSTEMS = {
+  stonetop: {
+    arcanum: "arcanum.schema.json",
+    item: "item.schema.json",
+    steading: "steading.schema.json",
+    expedition: "expedition.schema.json",
+    npc: "npc.schema.json",
+    group: "group.schema.json",
+    location: "location.schema.json",
+  },
+  forged: {
+    score: "score.schema.json",
+    faction: "faction.schema.json",
+    npc: "npc.schema.json",
+    district: "district.schema.json",
+    item: "item.schema.json",
+  },
 };
 const IN_CI = process.env.GITHUB_ACTIONS === "true";
 
@@ -58,6 +79,18 @@ function walk(dir) {
   return out;
 }
 
+/**
+ * Derive the system for a file from its path: the directory segment immediately
+ * following a `content` segment (content/<system>/...). Returns null if the path
+ * has no recognizable `content/<system>` prefix.
+ */
+function systemOf(file) {
+  const segs = resolve(file).split(/[\\/]/);
+  const idx = segs.lastIndexOf("content");
+  if (idx === -1 || idx + 1 >= segs.length) return null;
+  return segs[idx + 1];
+}
+
 /** Best-effort line number of a frontmatter field, so errors point somewhere useful. */
 function lineOf(fileText, instancePath) {
   const lines = fileText.split(/\r?\n/);
@@ -83,16 +116,28 @@ const opts = parseArgs(process.argv.slice(2));
 const schemaDir = resolve(opts.schema);
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 addFormats(ajv);
-const validators = {};
-for (const [kind, fname] of Object.entries(KINDS)) {
-  const schema = JSON.parse(readFileSync(join(schemaDir, fname), "utf8"));
-  validators[kind] = ajv.compile(schema);
+
+// Compile validators lazily, per system:kind, so a repo that only touches one
+// system doesn't require every system's schema folder to exist.
+const validatorCache = new Map(); // "system:kind" -> compiled validator (or null if unknown)
+function getValidator(system, kind) {
+  const cacheKey = `${system}:${kind}`;
+  if (validatorCache.has(cacheKey)) return validatorCache.get(cacheKey);
+  const fname = SYSTEMS[system]?.[kind];
+  if (!fname) {
+    validatorCache.set(cacheKey, null);
+    return null;
+  }
+  const schema = JSON.parse(readFileSync(join(schemaDir, system, fname), "utf8"));
+  const validate = ajv.compile(schema);
+  validatorCache.set(cacheKey, validate);
+  return validate;
 }
 
 const files = opts.files.length ? opts.files.map((f) => resolve(f)) : walk(resolve(opts.content));
 
 const problems = [];
-const seen = new Map(); // "kind:slug" -> file
+const seen = new Map(); // "system:kind:slug" -> file
 
 function report(file, line, message) {
   problems.push({ file, line, message });
@@ -114,18 +159,23 @@ for (const file of files) {
     report(rel, 1, `invalid YAML frontmatter: ${e.message}`);
     continue;
   }
-  // Files with no frontmatter at all (READMEs, expeditions, plain prose) are not
-  // content submissions — skip them silently. A file WITH frontmatter must, however,
-  // declare a known `kind`.
+  // Files with no frontmatter at all (READMEs, plain prose) are not content
+  // submissions — skip them silently. A file WITH frontmatter must, however,
+  // sit under a known system and declare a `kind` that system defines.
   if (!data || Object.keys(data).length === 0) {
     continue;
   }
-  const kind = data.kind;
-  if (!kind || !validators[kind]) {
-    report(rel, lineOf(text, "/kind"), `missing or unknown \`kind\` (expected one of: ${Object.keys(KINDS).join(", ")})`);
+  const system = systemOf(file);
+  if (!system || !SYSTEMS[system]) {
+    report(rel, 1, `cannot determine system from path (expected content/<system>/... where system is one of: ${Object.keys(SYSTEMS).join(", ")})`);
     continue;
   }
-  const validate = validators[kind];
+  const kind = data.kind;
+  const validate = kind ? getValidator(system, kind) : null;
+  if (!validate) {
+    report(rel, lineOf(text, "/kind"), `missing or unknown \`kind\` for system \`${system}\` (expected one of: ${Object.keys(SYSTEMS[system]).join(", ")})`);
+    continue;
+  }
   if (!validate(data)) {
     for (const err of validate.errors) {
       const where = err.instancePath || "(root)";
@@ -134,11 +184,12 @@ for (const file of files) {
     }
     continue;
   }
-  // Intra-repo uniqueness.
+  // Intra-repo uniqueness, namespaced by system (a stonetop `npc` and a forged
+  // `npc` with the same slug do not collide).
   const slug = kind === "item" ? slugify(data.name) : data.slug;
-  const id = `${kind}:${slug}`;
+  const id = `${system}:${kind}:${slug}`;
   if (seen.has(id)) {
-    report(rel, 1, `duplicate ${kind} \`${slug}\` — also defined in ${seen.get(id)}`);
+    report(rel, 1, `duplicate ${system} ${kind} \`${slug}\` — also defined in ${seen.get(id)}`);
   } else {
     seen.set(id, rel);
   }

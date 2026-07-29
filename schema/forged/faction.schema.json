@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/forged/faction.schema.json",
+  "title": "Forged in the Dark Faction (third-party content)",
+  "description": "Frontmatter contract for a Forged-in-the-Dark faction. Maps to a Sled Dog World organization entry (name/description/notes/relations columns + a rich `details` payload). Write from the Blades in the Dark SRD vocabulary; use no Duskwall setting text, NPCs, art, or maps.",
+  "type": "object",
+  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": { "const": "faction" },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line hook shown on the crew's Manage content page."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Who They Are — what the faction is, how it operates, its sign."
+    },
+    "tier": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "Faction tier 0–6 (their reach, wealth, and hold on their turf)."
+    },
+    "hold": {
+      "enum": ["strong", "weak"],
+      "description": "Whether their hold on their tier is strong or weak."
+    },
+    "turf": {
+      "type": "string",
+      "description": "The territory, market, or racket they control."
+    },
+    "background": {
+      "type": "string",
+      "description": "One paragraph: how the faction came to be; keep one thing hidden."
+    },
+    "goals": { "type": "string", "description": "What they are working to bring about." },
+    "methods": { "type": "string", "description": "How they pursue it." },
+    "faultLine": { "type": "string", "description": "The internal split or vulnerability that could break them." },
+    "notables": {
+      "type": "array",
+      "description": "Notable members (name + a line on their role).",
+      "items": { "$ref": "#/$defs/notable" }
+    },
+    "relations": {
+      "type": "array",
+      "description": "Ties & Relationships — loaded prompts addressed to the crew.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "clocks": {
+      "type": "array",
+      "description": "Faction project/war clocks the GM can advance.",
+      "items": { "$ref": "#/$defs/clock" }
+    },
+    "hooks": {
+      "type": "array",
+      "description": "Reasons the faction pulls a crew into motion.",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "notes": { "type": "string", "description": "Optional GM notes." },
+    "author": { "type": "string", "minLength": 1 },
+    "author_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "notable": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "note": { "type": ["string", "null"], "description": "Their role/epithet and what they're about." }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "required": ["name", "segments"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "segments": { "type": "integer", "enum": [4, 6, 8, 10, 12], "description": "Clock size in segments." },
+        "note": { "type": ["string", "null"], "description": "What filling it means." }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
