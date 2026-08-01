@@ -4,16 +4,29 @@
   "title": "Stonetop Location (third-party content)",
   "description": "Frontmatter contract for a droppable location. Maps to a Sled Dog World location entry (name/description columns + a rich `details` payload).",
   "type": "object",
-  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "required": [
+    "kind",
+    "slug",
+    "name",
+    "summary",
+    "description",
+    "author",
+    "author_url"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": { "const": "location" },
+    "kind": {
+      "const": "location"
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
     },
-    "name": { "type": "string", "minLength": 1 },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
     "summary": {
       "type": "string",
       "minLength": 1,
@@ -27,12 +40,17 @@
     "impressions": {
       "type": "array",
       "description": "Sensory beats — what the party notices on arrival.",
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "features": {
       "type": "array",
       "description": "Keyed features/rooms.",
-      "items": { "$ref": "#/$defs/feature" }
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
     },
     "dangers": {
       "type": "object",
@@ -42,28 +60,80 @@
         "hazards": {
           "type": "array",
           "description": "Environmental dangers, as prose lines.",
-          "items": { "type": "string", "minLength": 1 }
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "statBlock": { "$ref": "#/$defs/statBlock" }
+        "statBlock": {
+          "$ref": "#/$defs/statBlock"
+        }
       }
     },
     "hooks": {
       "type": "array",
       "description": "Reasons the location pulls a table into motion.",
-      "items": { "$ref": "#/$defs/hook" }
+      "items": {
+        "$ref": "#/$defs/hook"
+      }
     },
-    "notes": { "type": "string", "description": "Optional GM notes." },
-    "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
+    "notes": {
+      "type": "string",
+      "description": "Optional GM notes."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          }
+        }
+      }
+    }
   },
   "$defs": {
     "feature": {
       "type": "object",
-      "required": ["name", "text"],
+      "required": [
+        "name",
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "text": { "type": "string", "minLength": 1 }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "statBlock": {
@@ -71,26 +141,71 @@
       "description": "A ready-to-run stat block in the Stonetop house format (what lurks here).",
       "additionalProperties": false,
       "properties": {
-        "tags": { "type": "array", "items": { "type": "string" } },
-        "hp": { "type": ["integer", "null"], "minimum": 0 },
-        "armor": { "type": ["integer", "null"], "minimum": 0 },
-        "damage": { "type": ["string", "null"] },
-        "special": { "type": ["string", "null"] },
-        "instinct": { "type": ["string", "null"] },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hp": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "armor": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "damage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "special": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instinct": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "moves": {
           "type": "array",
           "description": "The instinct's GM-move lines (the `>` bullets).",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "hook": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
-        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
-        "text": { "type": "string", "minLength": 1 }
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional bold lead-in."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     }
   }

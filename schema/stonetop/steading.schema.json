@@ -4,25 +4,50 @@
   "title": "Stonetop Steading Improvement (third-party content)",
   "description": "Frontmatter contract for a steading improvement. Maps to Sled Dog's SteadingImprovementDef.",
   "type": "object",
-  "required": ["kind", "slug", "name", "summary", "requirements", "requireCount", "effects", "author", "author_url"],
+  "required": [
+    "kind",
+    "slug",
+    "name",
+    "summary",
+    "requirements",
+    "requireCount",
+    "effects",
+    "author",
+    "author_url"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": { "const": "steading" },
+    "kind": {
+      "const": "steading"
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ppg:<slug>)."
     },
-    "name": { "type": "string", "minLength": 1 },
-    "summary": { "type": "string", "minLength": 1, "description": "One-line pitch shown in the picker." },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line pitch shown in the picker."
+    },
     "requirements": {
       "type": "array",
       "minItems": 1,
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "description": "Requirement lines the party checks off as they fulfill them."
     },
     "requireCount": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "null = all required to acquire; a number = any N of the listed."
     },
@@ -35,13 +60,22 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["fortunes", "prosperity", "surplus", "defenses", "population"]
+        "enum": [
+          "fortunes",
+          "prosperity",
+          "surplus",
+          "defenses",
+          "population"
+        ]
       },
       "uniqueItems": true,
       "description": "Resource tracks the effect impacts (colored labels + filters). May be empty (e.g. an improvement that only grants a move)."
     },
     "seasons": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Minimum seasons to complete (best-guess from the requirement text). Omit or null when the rules state none."
     },
@@ -49,16 +83,58 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "text"],
+        "required": [
+          "name",
+          "text"
+        ],
         "additionalProperties": false,
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "text": { "type": "string", "minLength": 1 }
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       },
       "description": "Home Front moves granted to every party character when the GM marks it acquired."
     },
-    "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          }
+        }
+      }
+    }
   }
 }

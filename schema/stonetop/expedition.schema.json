@@ -2,125 +2,85 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://puppup.games/schema/expedition.schema.json",
   "title": "Stonetop Expedition (third-party content)",
-  "description": "Frontmatter contract for a GM-only expedition (a party-adoptable adventure). Maps to Sled Dog's ExpeditionDef. Preparations and grimPortents are authored as plain strings; Sled Dog materializes their play-state (done/advanced = false) on adopt.",
+  "description": "Frontmatter contract for a GM-only expedition (a party-adoptable adventure). Maps to Sled Dog's ExpeditionDef. Unlike the other kinds, the expedition ITSELF is the Markdown body of this file (rendered read-only on the card); the frontmatter carries only the header metadata.",
   "type": "object",
-  "required": ["kind", "slug", "name", "summary", "body", "author", "author_url"],
+  "required": [
+    "kind",
+    "slug",
+    "name",
+    "summary",
+    "author",
+    "author_url"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": { "const": "expedition" },
+    "kind": {
+      "const": "expedition"
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
-      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ppg:<slug>)."
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
     },
-    "name": { "type": "string", "minLength": 1 },
-    "summary": { "type": "string", "minLength": 1, "description": "A paragraph shown in the picker + block header." },
-    "season": { "type": "string", "description": "Season it's tuned for, e.g. \"Winter\"." },
-    "level": { "type": "string", "description": "Suggested level, e.g. \"Level 1\"." },
-    "players": { "type": "string", "description": "Suggested table size, e.g. \"3–5 players\"." },
-    "blurb": { "type": "string", "description": "One-line hook." },
-    "needs": { "type": "string", "description": "What the GM needs to run it (e.g. a copy of Stonetop)." },
-    "body": {
-      "type": "object",
-      "additionalProperties": false,
-      "description": "The structured expedition body (ExpeditionBody). Every field is optional.",
-      "properties": {
-        "pitch": { "type": "string", "description": "GM read-first pitch + the driver line." },
-        "sessionStart": { "type": "string", "description": "Read-aloud that opens the table." },
-        "homefront": { "type": "string", "description": "The opening homefront scene + the hook." },
-        "site": { "type": "string", "description": "The site overview / impressions prose." },
-        "impendingDoom": { "type": "string", "description": "Where the clock ends if the PCs do nothing." },
-        "setupQuestions": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "description": "Character setup questions asked at the table."
-        },
-        "preparations": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "description": "GM prep checklist lines (materialized to unchecked items on adopt)."
-        },
-        "npcs": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name"],
-            "additionalProperties": false,
-            "properties": {
-              "name": { "type": "string", "minLength": 1 },
-              "role": { "type": "string" },
-              "knows": { "type": "string" },
-              "wants": { "type": "string" }
-            }
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A paragraph shown in the picker + on the card header."
+    },
+    "season": {
+      "type": "string",
+      "description": "Season it's tuned for, e.g. \"Winter\"."
+    },
+    "level": {
+      "type": "string",
+      "description": "Suggested level, e.g. \"Level 1\"."
+    },
+    "players": {
+      "type": "string",
+      "description": "Suggested table size, e.g. \"3–5 players\"."
+    },
+    "blurb": {
+      "type": "string",
+      "description": "One-line hook."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
           },
-          "description": "Keystone NPCs."
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["title", "text"],
-            "additionalProperties": false,
-            "properties": {
-              "title": { "type": "string", "minLength": 1 },
-              "text": { "type": "string", "minLength": 1 }
-            }
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
           },
-          "description": "Numbered features of the site."
-        },
-        "hazards": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "description": "Environmental / situational dangers."
-        },
-        "threats": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name", "block"],
-            "additionalProperties": false,
-            "properties": {
-              "name": { "type": "string", "minLength": 1 },
-              "block": { "type": "string", "minLength": 1, "description": "The raw stat block text (HP/armor/damage/qualities/moves)." },
-              "instinct": { "type": "string" }
-            }
-          },
-          "description": "Threat stat blocks in the Dangers section."
-        },
-        "grimPortents": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "description": "The grim-portents doom clock, in order (materialized to un-advanced ticks on adopt)."
-        },
-        "customMoves": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name", "trigger"],
-            "additionalProperties": false,
-            "properties": {
-              "name": { "type": "string", "minLength": 1 },
-              "trigger": { "type": "string", "minLength": 1 },
-              "strong": { "type": "string", "description": "10+ outcome." },
-              "weak": { "type": "string", "description": "7–9 outcome." },
-              "miss": { "type": "string", "description": "6- outcome." }
-            }
-          },
-          "description": "Custom moves the expedition introduces."
-        },
-        "discoveries": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "description": "Truths the PCs can uncover."
-        },
-        "threads": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "description": "Threads left open for later sessions."
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          }
         }
       }
-    },
-    "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
+    }
   }
 }

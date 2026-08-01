@@ -4,16 +4,29 @@
   "title": "Stonetop NPC (third-party content)",
   "description": "Frontmatter contract for a droppable NPC. Maps to a Sled Dog World NPC entry (name/description/notes/relations columns + a rich `details` payload).",
   "type": "object",
-  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "required": [
+    "kind",
+    "slug",
+    "name",
+    "summary",
+    "description",
+    "author",
+    "author_url"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": { "const": "npc" },
+    "kind": {
+      "const": "npc"
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
     },
-    "name": { "type": "string", "minLength": 1 },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
     "summary": {
       "type": "string",
       "minLength": 1,
@@ -28,24 +41,78 @@
       "type": "string",
       "description": "One paragraph: where they came from and the wound/secret that drives them."
     },
-    "drive": { "type": "string", "description": "What they'll act to get." },
-    "fear": { "type": "string", "description": "What they'll act to avoid." },
-    "secret": { "type": "string", "description": "The thing they'd never admit." },
-    "statBlock": { "$ref": "#/$defs/statBlock" },
-    "customMove": { "$ref": "#/$defs/customMove" },
+    "drive": {
+      "type": "string",
+      "description": "What they'll act to get."
+    },
+    "fear": {
+      "type": "string",
+      "description": "What they'll act to avoid."
+    },
+    "secret": {
+      "type": "string",
+      "description": "The thing they'd never admit."
+    },
+    "statBlock": {
+      "$ref": "#/$defs/statBlock"
+    },
+    "customMove": {
+      "$ref": "#/$defs/customMove"
+    },
     "relations": {
       "type": "array",
       "description": "Bonds & Relationships — loaded prompts addressed to the characters.",
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "hooks": {
       "type": "array",
       "description": "Reasons the NPC pulls a table into motion.",
-      "items": { "$ref": "#/$defs/hook" }
+      "items": {
+        "$ref": "#/$defs/hook"
+      }
     },
-    "notes": { "type": "string", "description": "Optional GM notes." },
-    "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
+    "notes": {
+      "type": "string",
+      "description": "Optional GM notes."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          }
+        }
+      }
+    }
   },
   "$defs": {
     "statBlock": {
@@ -53,37 +120,98 @@
       "description": "A ready-to-run stat block in the Stonetop house format.",
       "additionalProperties": false,
       "properties": {
-        "tags": { "type": "array", "items": { "type": "string" } },
-        "hp": { "type": ["integer", "null"], "minimum": 0 },
-        "armor": { "type": ["integer", "null"], "minimum": 0 },
-        "damage": { "type": ["string", "null"] },
-        "special": { "type": ["string", "null"] },
-        "instinct": { "type": ["string", "null"] },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hp": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "armor": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "damage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "special": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instinct": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "moves": {
           "type": "array",
           "description": "The instinct's GM-move lines (the `>` bullets).",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "customMove": {
       "type": "object",
       "description": "An optional bespoke `>` move that encodes what makes them singular.",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": ["string", "null"] },
-        "trigger": { "type": ["string", "null"], "description": "The 'When you …' trigger clause." },
-        "text": { "type": "string", "minLength": 1 }
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "trigger": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The 'When you …' trigger clause."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "hook": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
-        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
-        "text": { "type": "string", "minLength": 1 }
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional bold lead-in."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     }
   }

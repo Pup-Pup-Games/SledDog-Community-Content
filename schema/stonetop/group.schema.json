@@ -4,16 +4,29 @@
   "title": "Stonetop Group / Organization (third-party content)",
   "description": "Frontmatter contract for a faction/group. Maps to a Sled Dog World organization entry (name/description/notes/relations columns + a rich `details` payload).",
   "type": "object",
-  "required": ["kind", "slug", "name", "summary", "description", "author", "author_url"],
+  "required": [
+    "kind",
+    "slug",
+    "name",
+    "summary",
+    "description",
+    "author",
+    "author_url"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": { "const": "group" },
+    "kind": {
+      "const": "group"
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
     },
-    "name": { "type": "string", "minLength": 1 },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
     "summary": {
       "type": "string",
       "minLength": 1,
@@ -28,37 +41,102 @@
       "type": "string",
       "description": "One paragraph: how the group came to be; keep one thing hidden."
     },
-    "agenda": { "type": "string", "description": "What they act to bring about." },
-    "method": { "type": "string", "description": "How they pursue it." },
-    "faultLine": { "type": "string", "description": "The internal split that could break them." },
+    "agenda": {
+      "type": "string",
+      "description": "What they act to bring about."
+    },
+    "method": {
+      "type": "string",
+      "description": "How they pursue it."
+    },
+    "faultLine": {
+      "type": "string",
+      "description": "The internal split that could break them."
+    },
     "members": {
       "type": "array",
       "description": "Notable members.",
-      "items": { "$ref": "#/$defs/member" }
+      "items": {
+        "$ref": "#/$defs/member"
+      }
     },
-    "statBlock": { "$ref": "#/$defs/statBlock" },
+    "statBlock": {
+      "$ref": "#/$defs/statBlock"
+    },
     "relations": {
       "type": "array",
       "description": "Ties & Relationships — loaded prompts addressed to the characters.",
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "hooks": {
       "type": "array",
       "description": "Reasons the group pulls a table into motion.",
-      "items": { "$ref": "#/$defs/hook" }
+      "items": {
+        "$ref": "#/$defs/hook"
+      }
     },
-    "notes": { "type": "string", "description": "Optional GM notes." },
-    "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
+    "notes": {
+      "type": "string",
+      "description": "Optional GM notes."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          }
+        }
+      }
+    }
   },
   "$defs": {
     "member": {
       "type": "object",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "note": { "type": ["string", "null"], "description": "Their role/epithet and what they're about." }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Their role/epithet and what they're about."
+        }
       }
     },
     "statBlock": {
@@ -66,26 +144,71 @@
       "description": "A ready-to-run stat block in the Stonetop house format (a representative member).",
       "additionalProperties": false,
       "properties": {
-        "tags": { "type": "array", "items": { "type": "string" } },
-        "hp": { "type": ["integer", "null"], "minimum": 0 },
-        "armor": { "type": ["integer", "null"], "minimum": 0 },
-        "damage": { "type": ["string", "null"] },
-        "special": { "type": ["string", "null"] },
-        "instinct": { "type": ["string", "null"] },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hp": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "armor": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "damage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "special": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instinct": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "moves": {
           "type": "array",
           "description": "The instinct's GM-move lines (the `>` bullets).",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "hook": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
-        "title": { "type": ["string", "null"], "description": "Optional bold lead-in." },
-        "text": { "type": "string", "minLength": 1 }
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional bold lead-in."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     }
   }

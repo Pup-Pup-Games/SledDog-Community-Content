@@ -4,10 +4,21 @@
   "title": "Stonetop Item (third-party content)",
   "description": "Frontmatter contract for an inventory/special item. Maps to Sled Dog's GearCatalogEntry. A bespoke custom move (if any) belongs in `note` for now.",
   "type": "object",
-  "required": ["kind", "name", "summary", "label", "tags", "value", "author", "author_url"],
+  "required": [
+    "kind",
+    "name",
+    "summary",
+    "label",
+    "tags",
+    "value",
+    "author",
+    "author_url"
+  ],
   "additionalProperties": false,
   "properties": {
-    "kind": { "const": "item" },
+    "kind": {
+      "const": "item"
+    },
     "name": {
       "type": "string",
       "minLength": 1,
@@ -19,12 +30,23 @@
       "description": "One or two sentences on what this item is/does — shown on the party's Manage content page so owners know what they're adding."
     },
     "label": {
-      "enum": ["weapons", "armor", "camp", "tools", "writing", "transport", "trade", "misc"],
+      "enum": [
+        "weapons",
+        "armor",
+        "camp",
+        "tools",
+        "writing",
+        "transport",
+        "trade",
+        "misc"
+      ],
       "description": "Which add-gear group it appears under."
     },
     "tags": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Gear tags (range, damage, quality, material)."
     },
     "value": {
@@ -33,11 +55,58 @@
       "maximum": 4,
       "description": "Relative Value 0–4 (see the Stonetop gear legend)."
     },
-    "load": { "type": "integer", "minimum": 0, "description": "Load slots per unit; defaults to 1 when unset." },
-    "small": { "type": "boolean", "description": "A small possession (circle slot, no Load)." },
-    "uses": { "type": "integer", "minimum": 0, "description": "Consumable use-circles seeded onto the added item." },
-    "note": { "type": "string", "description": "Clarifying note carried into the item's notes (also holds a custom move's text for now)." },
-    "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri", "pattern": "^https?://" }
+    "load": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Load slots per unit; defaults to 1 when unset."
+    },
+    "small": {
+      "type": "boolean",
+      "description": "A small possession (circle slot, no Load)."
+    },
+    "uses": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Consumable use-circles seeded onto the added item."
+    },
+    "note": {
+      "type": "string",
+      "description": "Clarifying note carried into the item's notes (also holds a custom move's text for now)."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          }
+        }
+      }
+    }
   }
 }

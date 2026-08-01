@@ -15,6 +15,9 @@ Content is organized **by game system**. We currently accept content for:
 - **NPCs** — one droppable, ready-to-run person and the trouble they carry.
 - **Groups** — a faction / organization the party keeps bumping into.
 - **Locations** — a place a GM can pin on the map and run cold.
+- **Expeditions** — a GM-only, party-adoptable adventure. The expedition *is* the
+  Markdown body of the file (the frontmatter is just header metadata) — write it in
+  any shape. Cite official Stonetop content by page; don't reproduce it.
 
 **Forged in the Dark** (based on *Blades in the Dark* by John Harper, One Seven
 Design, under CC-BY 3.0) — under `content/forged/`:
@@ -40,8 +43,9 @@ GitHub Action checks every pull request and tells you exactly what to fix.
 2. **Start from a template** in [`templates/<system>/`](templates/) for your
    content kind. Copy it to `content/<system>/<kind>/<slug>/<slug>.md`, where
    `<system>` is `stonetop` or `forged`, `<kind>` is one of that system's kinds
-   (Stonetop: `arcana`, `items`, `steadings`, `npcs`, `groups`, `locations`;
-   Forged: `scores`, `factions`, `npcs`, `districts`, `items`), and `<slug>` is a
+   (Stonetop: `arcana`, `items`, `steadings`, `npcs`, `groups`, `locations`,
+   `expeditions`; Forged: `scores`, `factions`, `npcs`, `districts`, `items`),
+   and `<slug>` is a
    kebab-case name (no leading `the-`), e.g.
    `content/stonetop/arcana/whisper-jar/whisper-jar.md` or
    `content/forged/scores/the-ledger-run/the-ledger-run.md`.
