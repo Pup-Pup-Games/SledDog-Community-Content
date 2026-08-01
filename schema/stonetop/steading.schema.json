@@ -116,9 +116,6 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "file"
-        ],
         "properties": {
           "file": {
             "type": "string",
@@ -132,9 +129,20 @@
           "description": {
             "type": "string",
             "description": "Longer notes shown when the card is expanded."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://",
+            "description": "A published Supabase public URL (paid packs). Alternative to `file`."
           }
         }
       }
+    },
+    "pack": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "For paid-pack content only: the pack slug this item belongs to."
     }
   }
 }
