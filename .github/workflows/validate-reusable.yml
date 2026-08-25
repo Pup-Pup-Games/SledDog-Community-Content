@@ -5,7 +5,7 @@ name: Validate third-party content (reusable)
 #
 #   jobs:
 #     validate:
-#       uses: Pup-Pup-Games/SledDog-3rd-Party-Content/.github/workflows/validate-reusable.yml@main
+#       uses: Pup-Pup-Games/SledDog-Community-Content/.github/workflows/validate-reusable.yml@main
 #
 on:
   workflow_call:
@@ -15,7 +15,7 @@ on:
         type: string
         default: content
       validator_ref:
-        description: Ref of SledDog-3rd-Party-Content to use as the validator + schema.
+        description: Ref of SledDog-Community-Content to use as the validator + schema.
         type: string
         default: main
 
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout validator + schema
         uses: actions/checkout@v4
         with:
-          repository: Pup-Pup-Games/SledDog-3rd-Party-Content
+          repository: Pup-Pup-Games/SledDog-Community-Content
           ref: ${{ inputs.validator_ref }}
           path: validator
       - uses: actions/setup-node@v4
