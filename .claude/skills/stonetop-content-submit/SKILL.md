@@ -1,6 +1,6 @@
 ---
 name: stonetop-content-submit
-description: Turn an author's description of a Stonetop arcanum, item, steading improvement, NPC, group, or location into a schema-compliant content file for this repo (Markdown + YAML frontmatter under content/stonetop/<kind>/<slug>/<slug>.md), then verify it with the repo's own validator. Use when someone wants to submit/add/author third-party Stonetop content for Sled Dog, or says "add my arcanum", "make this item compliant", "turn this into a submission", "prep my steading improvement for a PR", "add my NPC/group/location". (Forged in the Dark content lives under content/forged/ with its own templates/schemas.) Runs in this repo (SledDog-3rd-Party-Content). Does NOT open the PR for the user or invent game mechanics.
+description: Turn an author's description of a Stonetop arcanum, item, steading improvement, NPC, group, or location into a schema-compliant content file for this repo (Markdown + YAML frontmatter under content/stonetop/<kind>/<slug>/<slug>.md), then verify it with the repo's own validator. Use when someone wants to submit/add/author third-party Stonetop content for Sled Dog, or says "add my arcanum", "make this item compliant", "turn this into a submission", "prep my steading improvement for a PR", "add my NPC/group/location". (Forged in the Dark content lives under content/forged/ with its own templates/schemas.) Runs in this repo (SledDog-Community-Content). Does NOT open the PR for the user or invent game mechanics.
 ---
 
 # Stonetop content submission
