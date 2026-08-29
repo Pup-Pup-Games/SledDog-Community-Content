@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://puppup.games/schema/follower.schema.json",
+  "title": "Stonetop Follower (third-party content)",
+  "description": "Frontmatter contract for a ready-made follower — a person, a band, or a beast a character can take on. Maps to Sled Dog's FollowerDef: adding one from the picker seeds a row on the character's Followers tab with these stats already filled in.",
+  "type": "object",
+  "required": [
+    "kind",
+    "slug",
+    "name",
+    "summary",
+    "author",
+    "author_url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "const": "follower"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "kebab-case, no leading 'the-'. Sled Dog namespaces it (e.g. ext:<author>:<slug>)."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name on the follower card and in the add picker."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One or two sentences on who this is — shown in the picker and on the party's Manage content page."
+    },
+    "type": {
+      "enum": ["individual", "group", "animal"],
+      "description": "Which colored label the follower carries: one person, a band (use `individuals` for its standouts), or a beast. Defaults to `individual`."
+    },
+    "descriptor": {
+      "type": "string",
+      "description": "The short line under the name — their look, their bearing, what they're known for."
+    },
+    "loyalty": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Starting Loyalty. Defaults to 1 when unset."
+    },
+    "maxLoyalty": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Loyalty track size. Defaults to 3 when unset."
+    },
+    "hp": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Starting (and maximum) HP."
+    },
+    "armor": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The follower's own armor rating."
+    },
+    "damage": {
+      "type": "string",
+      "description": "Damage die + tags, e.g. \"d6 (hand, messy)\"."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Quality/trait tags, e.g. [\"loyal\", \"green\", \"knows the fens\"]."
+    },
+    "instinct": {
+      "type": "string",
+      "description": "What they do when left to themselves, e.g. \"to settle it with fists\"."
+    },
+    "cost": {
+      "type": "string",
+      "description": "Their upkeep — what keeps them following, e.g. \"drink\", \"a share of the take\"."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Clarifying notes carried onto the follower's card (a bespoke move's text lives here for now)."
+    },
+    "individuals": {
+      "type": "array",
+      "description": "Standout named members — group followers only.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "tag": {
+            "type": "string",
+            "description": "The one quality that sets them apart."
+          },
+          "traits": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Extra traits they've distinguished themselves with."
+          }
+        }
+      }
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Short title shown on the gallery card."
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer notes shown when the card is expanded."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://",
+            "description": "A published Supabase public URL (paid packs). Alternative to `file`."
+          }
+        }
+      }
+    },
+    "pack": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "For paid-pack content only: the pack slug this item belongs to."
+    }
+  }
+}

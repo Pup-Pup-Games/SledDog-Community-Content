@@ -14,6 +14,10 @@ load: 1                    # Load cost 0–3 when carried (0 = negligible/worn)
 #   When it matters and what edge it gives.
 # note: >-                 # optional clarifying note
 #   Extra details for the table.
+# images:                  # optional — art shipped to the party image gallery
+#   - file: art/scene.png    # relative to this folder; commit the file beside this .md
+#     caption: A short title for the gallery card.
+#     description: Longer notes shown when the card is expanded.
 author: Your Name
 author_url: https://your-site.example
 ---

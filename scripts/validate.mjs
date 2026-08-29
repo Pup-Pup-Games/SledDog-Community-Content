@@ -40,6 +40,7 @@ const SYSTEMS = {
     npc: "npc.schema.json",
     group: "group.schema.json",
     location: "location.schema.json",
+    follower: "follower.schema.json",
   },
   forged: {
     score: "score.schema.json",

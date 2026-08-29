@@ -19,6 +19,10 @@ seasons: 2                 # minimum seasons to complete; omit or null if the ru
 # grants_moves:            # optional: Home Front move(s) granted to every character on acquire
 #   - name: The Move Name
 #     text: When you …, roll +Fortunes: on a 10+ …
+# images:                  # optional — art shipped to the party image gallery
+#   - file: art/scene.png    # relative to this folder; commit the file beside this .md
+#     caption: A short title for the gallery card.
+#     description: Longer notes shown when the card is expanded.
 author: Your Name
 author_url: https://your-site.example
 ---

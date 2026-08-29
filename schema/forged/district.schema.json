@@ -63,7 +63,35 @@
     },
     "notes": { "type": "string", "description": "Optional GM notes." },
     "author": { "type": "string", "minLength": 1 },
-    "author_url": { "type": "string", "format": "uri" }
+    "author_url": { "type": "string", "format": "uri" },
+    "images": {
+      "type": "array",
+      "description": "Optional images shipped to the party image gallery when this module is installed (a supporter feature). Files live beside this .md in the content repo; Sled Dog serves them from GitHub raw, pinned to the content commit.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Path to the image relative to this module folder (e.g. \"art/homefront.png\"). No leading slash, no \"..\"."
+          },
+          "caption": { "type": "string", "description": "Short title shown on the gallery card." },
+          "description": { "type": "string", "description": "Longer notes shown when the card is expanded." },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://",
+            "description": "A published Supabase public URL (paid packs). Alternative to `file`."
+          }
+        }
+      }
+    },
+    "pack": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "For paid-pack content only: the pack slug this item belongs to."
+    }
   },
   "$defs": {
     "feature": {
