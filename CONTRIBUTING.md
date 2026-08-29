@@ -15,6 +15,8 @@ Content is organized **by game system**. We currently accept content for:
 - **NPCs** — one droppable, ready-to-run person and the trouble they carry.
 - **Groups** — a faction / organization the party keeps bumping into.
 - **Locations** — a place a GM can pin on the map and run cold.
+- **Followers** — a ready-made follower (a person, a band, or a beast) a
+  character can take on, with their stats already filled in.
 - **Expeditions** — a GM-only, party-adoptable adventure. The expedition *is* the
   Markdown body of the file (the frontmatter is just header metadata) — write it in
   any shape. Cite official Stonetop content by page; don't reproduce it.
@@ -44,7 +46,8 @@ GitHub Action checks every pull request and tells you exactly what to fix.
    content kind. Copy it to `content/<system>/<kind>/<slug>/<slug>.md`, where
    `<system>` is `stonetop` or `forged`, `<kind>` is one of that system's kinds
    (Stonetop: `arcana`, `items`, `steadings`, `npcs`, `groups`, `locations`,
-   `expeditions`; Forged: `scores`, `factions`, `npcs`, `districts`, `items`),
+   `followers`, `expeditions`; Forged: `scores`, `factions`, `npcs`, `districts`,
+   `items`),
    and `<slug>` is a
    kebab-case name (no leading `the-`), e.g.
    `content/stonetop/arcana/whisper-jar/whisper-jar.md` or
@@ -65,6 +68,42 @@ GitHub Action checks every pull request and tells you exactly what to fix.
 6. A maintainer reviews it, we test it in Sled Dog's staging environment, and
    once it looks good it's promoted to production for everyone who has
    third-party content enabled.
+
+## Shipping art with your content
+
+**Every kind can carry art**, and it shows up the same way for every one of them.
+Put your images in an `art/` folder beside your content file and list them under
+`images:` in the frontmatter:
+
+```
+content/stonetop/followers/muster-horn/
+├── muster-horn.md
+└── art/
+    ├── portrait.png
+    └── on-the-road.png
+```
+
+```yaml
+images:
+  - file: art/portrait.png
+    caption: Hask, on the day she took the horn
+    description: Shown to the table the first time she speaks.
+  - file: art/on-the-road.png
+    caption: The muster on the ridge road
+```
+
+When a GM installs your module, those images arrive as **a folder of cards on the
+party's image gallery**, named after your module — the same way expedition art
+does. Cards start hidden from players; the GM chooses when to show each one.
+Sled Dog serves them straight from this repo (GitHub raw, pinned to the commit
+your content was built at), so:
+
+- **Commit the image files themselves** — a path that isn't in the repo is dropped.
+- **Keep them reasonable** — a few hundred KB each; PNG, JPG, or WebP.
+- **Only ship art you have the right to share.** Same rule as the content itself.
+- Paths are relative to your content folder — no leading `/`, no `..`.
+
+Curate the list. Ship the scene art and the portraits, not a storefront cover.
 
 ## Ground rules
 

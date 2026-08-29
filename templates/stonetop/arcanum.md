@@ -10,6 +10,10 @@ summary: >-                 # 1–2 sentences on what it does (shown on Manage c
 rarity: minor              # minor | major
 # location: false          # optional — true if the unrevealed front is a place
 # stats: [WIS]             # optional — STR | DEX | CON | INT | WIS | CHA
+# images:                  # optional — art shipped to the party image gallery
+#   - file: art/scene.png    # relative to this folder; commit the file beside this .md
+#     caption: A short title for the gallery card.
+#     description: Longer notes shown when the card is expanded.
 author: Your Name
 author_url: https://your-site.example
 front:                     # the discovery side (before it's unlocked)

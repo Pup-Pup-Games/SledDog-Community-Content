@@ -1,6 +1,6 @@
 ---
 name: stonetop-content-submit
-description: Turn an author's description of a Stonetop arcanum, item, steading improvement, NPC, group, or location into a schema-compliant content file for this repo (Markdown + YAML frontmatter under content/stonetop/<kind>/<slug>/<slug>.md), then verify it with the repo's own validator. Use when someone wants to submit/add/author third-party Stonetop content for Sled Dog, or says "add my arcanum", "make this item compliant", "turn this into a submission", "prep my steading improvement for a PR", "add my NPC/group/location". (Forged in the Dark content lives under content/forged/ with its own templates/schemas.) Runs in this repo (SledDog-Community-Content). Does NOT open the PR for the user or invent game mechanics.
+description: Turn an author's description of a Stonetop arcanum, item, steading improvement, NPC, group, location, or follower into a schema-compliant content file for this repo (Markdown + YAML frontmatter under content/stonetop/<kind>/<slug>/<slug>.md), then verify it with the repo's own validator. Use when someone wants to submit/add/author third-party Stonetop content for Sled Dog, or says "add my arcanum", "make this item compliant", "turn this into a submission", "prep my steading improvement for a PR", "add my NPC/group/location", "add my follower", "ship art with my module". (Forged in the Dark content lives under content/forged/ with its own templates/schemas.) Runs in this repo (SledDog-Community-Content). Does NOT open the PR for the user or invent game mechanics.
 ---
 
 # Stonetop content submission
@@ -27,15 +27,23 @@ content lives under `content/forged/` with its own kinds and templates.
 
 ## Procedure (follow in order)
 
-1. **Determine the `kind`** — `arcanum`, `item`, `steading`, `npc`, `group`, or
-   `location`. If the author hasn't said, ask. (This is the only judgment call in the
-   process.)
+1. **Determine the `kind`** — `arcanum`, `item`, `steading`, `npc`, `group`,
+   `location`, or `follower`. If the author hasn't said, ask. (This is the only
+   judgment call in the process.)
    - Two-faced magic item / working with a discovery + reveal → **arcanum**
    - Something a character carries in their pack → **item**
    - A building/upgrade the whole steading works toward → **steading**
    - One droppable person and the trouble they carry → **npc**
    - A faction / organization the party bumps into → **group**
    - A place a GM pins on the map and runs cold → **location**
+   - Someone (or something) a *character* takes on and keeps — with Loyalty, HP,
+     an instinct, and a cost → **follower**
+
+   **NPC vs. follower** is the one that trips people up: an NPC is a person the GM
+   drops into the world (a World-tab entry); a follower is a person, band, or beast
+   that joins a character and lives on their sheet. If the author's pitch is "the
+   party could hire them" it's a follower; if it's "they run the tannery and hate
+   the Marshal" it's an NPC. Ask when it's genuinely both.
 
 2. **Copy the template verbatim.** Start from `templates/stonetop/<kind>.md` — do not
    hand-write the frontmatter from memory. It already has the right keys and comments.
@@ -52,6 +60,10 @@ content lives under `content/forged/` with its own kinds and templates.
    the app doesn't need (flavor, illustrations) in the body, not the frontmatter.
    - For an **item** whose author describes a bespoke custom move, put the move's text
      in `note:` (Sled Dog can't model item-granted moves as a first-class mechanic yet).
+   - For a **follower**, the same applies — a bespoke move goes in `notes:`. Set `type`
+     (`individual` / `group` / `animal`) when the author says which; leave `loyalty` /
+     `maxLoyalty` out unless they gave numbers (Sled Dog defaults to 1 / 3). Name the
+     standouts of a band under `individuals:`.
    - Always set `author` and `author_url` to the author's real credit + link.
 
 5. **Write the file** to `content/stonetop/<kind>/<slug>/<slug>.md`.
@@ -68,6 +80,29 @@ content lives under `content/forged/` with its own kinds and templates.
    > Your content is at `content/stonetop/<kind>/<slug>/<slug>.md` and passes validation.
    > To submit it: create a branch, commit the file, push to your fork, and open a
    > pull request. The GitHub Action will re-run this same validator on the PR.
+
+
+## Art (any kind)
+
+Every kind accepts an `images:` list, and it works identically for all of them. If the
+author has art to ship:
+
+1. Put the files in an `art/` folder **inside the content folder**:
+   `content/stonetop/<kind>/<slug>/art/<name>.png`.
+2. List them in the frontmatter, `file` relative to the content folder:
+   ```yaml
+   images:
+     - file: art/portrait.png
+       caption: Short title for the gallery card.
+       description: Longer notes shown when the card is expanded.
+   ```
+3. **Verify each file exists on disk** before you write the frontmatter — Sled Dog
+   serves these from GitHub raw, so a path that isn't committed becomes a broken card.
+   Never invent an image entry the author didn't give you.
+
+When a GM installs the module, these arrive as a named folder of cards on their party's
+image gallery (hidden from players until the GM shows them). Only list art the author
+says they have the right to share; don't list a storefront cover as gallery art.
 
 ## Notes
 

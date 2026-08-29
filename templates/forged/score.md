@@ -36,6 +36,10 @@ description: >-            # The Situation — the target, the opportunity, and 
 #     text: The reason the crew takes the job; what it leaves open.
 # notes: >-                # optional GM notes
 #   Anything else the table should know.
+# images:                  # optional — art shipped to the party image gallery
+#   - file: art/scene.png    # relative to this folder; commit the file beside this .md
+#     caption: A short title for the gallery card.
+#     description: Longer notes shown when the card is expanded.
 author: Your Name
 author_url: https://your-site.example
 ---
