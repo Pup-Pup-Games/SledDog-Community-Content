@@ -1,7 +1,7 @@
 # Contributing content
 
 Thank you for making content for the community! This repo holds
-**third-party, unofficial** content that [Sled Dog](https://sleddog.puppup.games)
+**third-party, unofficial** content that [Sled Dog](https://sleddog.tools)
 can pull in and offer to tables that opt into third-party content — with **your
 name and a link on every item**.
 
