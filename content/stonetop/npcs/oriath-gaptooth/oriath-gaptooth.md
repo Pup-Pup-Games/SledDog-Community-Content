@@ -67,6 +67,10 @@ hooks:
   text: The copies she kept are not evidence and not insurance. She has been assembling, name by name
     for twenty years, a complete account of every soul in Gordin's Delve and exactly what they can be
     bought for, and lately someone from the Second Delve has been offering to take it off her hands.
+images:
+- file: art/portrait.png
+  caption: Oriath Gaptooth
+  description: Show it when the party first finds Oriath on her step, humming her soundless count.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

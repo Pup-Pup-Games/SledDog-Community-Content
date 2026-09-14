@@ -77,6 +77,10 @@ hooks:
   text: The marginalia are not Isbeal's. Something has been reading the book. Forty years of patient,
     verified, first-hand observation may turn out to have been the most thorough act of worship anyone
     in the Vicinity has ever performed.
+images:
+- file: art/group.png
+  caption: The chained book
+  description: Show it when the party is taken down to the cellar and shown what the order has been writing.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

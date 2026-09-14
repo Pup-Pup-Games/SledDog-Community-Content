@@ -28,6 +28,10 @@ impacts:
   - prosperity
   - surplus
 seasons: 3
+images:
+- file: art/aquaduct.png
+  caption: The Maker aqueduct
+  description: Show it when the aqueduct is raised and the water first runs down to the village.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

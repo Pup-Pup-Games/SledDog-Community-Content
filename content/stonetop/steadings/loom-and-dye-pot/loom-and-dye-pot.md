@@ -29,6 +29,10 @@ impacts:
   - fortunes
   - surplus
 seasons: 1
+images:
+- file: art/loom_and_dye_pot.png
+  caption: The weaving shed and dye-yard
+  description: Show it when the loom and dye-pot go up, or whenever play returns to the dye-yard.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

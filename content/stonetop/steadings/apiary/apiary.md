@@ -28,6 +28,10 @@ impacts:
   - fortunes
   - surplus
 seasons: 1
+images:
+- file: art/apiary.png
+  caption: The skeps on the sunny bank
+  description: Show it when the apiary is built, or whenever play returns to the garths.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

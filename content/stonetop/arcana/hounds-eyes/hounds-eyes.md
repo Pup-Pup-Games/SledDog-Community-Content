@@ -36,6 +36,14 @@ back:
         3. You drift too deep — its hunger, its fear, its urge to run start to feel like yours.
         4. It bolts toward what it senses, and drags your attention with it.
         6- you fall fully into the beast and cannot find the way back until it sleeps, or something wakes you hard.
+images:
+- file: art/discovery.png
+  caption: The drowned shepherd
+  description: Show it when the party finds the whistle still in the dead shepherd's hand, his hounds
+    keeping vigil.
+- file: art/arcanum.png
+  caption: Riding the hound's senses
+  description: Show it the first time a PC sounds the whistle and wakes behind a beast's eyes.
 ---
 
 # The Hound's Eyes

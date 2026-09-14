@@ -66,6 +66,17 @@ hooks:
 - title: Whose light?
   text: The shuttered lamp in the loft is not a smuggler's. Someone has been feeding the thing in the
     rafters, and bargaining with it. Find out who, and what they were promised.
+images:
+- file: art/mill.png
+  caption: The drowned mill
+  description: Show it when the party first comes through the reeds and sees the mill tilting into the
+    fen.
+- file: art/loft.png
+  caption: The nest in the grain loft
+  description: Show it when they climb to the loft and find what has been living there.
+- file: art/grist-eel.png
+  caption: The Grist-Eel surfaces
+  description: Show it the moment the mill-water breaks and the Grist-Eel comes up beside the wheel.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

@@ -64,6 +64,10 @@ hooks:
   text: Forty years of verified first-hand observation, and every verified thing came through one throat.
     The whispers have been very patiently, very truthfully filling that book — and the book is chained
     in a cellar in the middle of the richest town in the Vicinity, and it is nearly finished.
+images:
+- file: art/portrait.png
+  caption: Isbeal Salt-Throat
+  description: Show it when the party first meets Isbeal — note the pale scaling at her temple and hands.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---
