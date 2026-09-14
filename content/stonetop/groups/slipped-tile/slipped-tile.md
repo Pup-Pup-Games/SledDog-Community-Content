@@ -68,6 +68,10 @@ hooks:
   text: The drain-runner stopped coming back the same. The sewer-runs reach the Second Delve, and the
     Second Delve ends at the lake, and something down there has begun offering the guild a much faster
     way to un-write a man's debts. (See The Long Candle and Daagon, Who Waits in Deep Waters.)
+images:
+- file: art/group.png
+  caption: Thieves in the sewer-runs
+  description: Show it when the party meets the crew underneath the town, tally-sticks changing hands.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---

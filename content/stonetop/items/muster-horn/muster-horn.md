@@ -17,6 +17,10 @@ note: 'When you wind the Muster-Horn within earshot of the steading and call its
   and ill-armed - the wrong ears hear it, and something answers that you did not call On a 6–, the GM
   says who does not come, or what comes in their place. Choose: armed; calm, not panicked; bringing tools
   or supplies you need; without rousing the whole steading.'
+images:
+- file: art/muster-horn.png
+  caption: The muster sounded
+  description: Show it the moment someone winds the horn and the whole steading drops its tools.
 author: Pup Pup Games
 author_url: https://puppup.games
 ---
