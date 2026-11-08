@@ -1,6 +1,6 @@
 name: Validate third-party content (reusable)
 
-# Called by other repos (e.g. Stonetop-Resources) so ONE validator definition
+# Callable from other content repos so ONE validator definition
 # governs every content source Sled Dog pulls from. Usage in the caller repo:
 #
 #   jobs:
