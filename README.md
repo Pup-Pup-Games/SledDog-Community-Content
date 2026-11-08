@@ -51,7 +51,7 @@ Sled Dog and this content pipeline are made by **[Pup Pup Games](https://puppup.
 
 We publish our own free, open-text Stonetop expeditions and modules too:
 
-- **In Sled Dog** — [sleddog.tools](https://sleddog.tools): switch on third-party content in your party's **Settings**
+- **In Sled Dog** — [sleddog.tools](https://sleddog.tools): the GM switches them on under the party's **Settings → Unofficial Content**
 - **Print-ready PDFs** — [pup-pup-games.itch.io](https://pup-pup-games.itch.io)
 
 ## Need help?
