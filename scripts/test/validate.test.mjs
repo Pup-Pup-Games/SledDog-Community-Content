@@ -56,9 +56,16 @@ test("art in art/ that images: does not list fails — the silent drop", () => {
   assert.doesNotMatch(r.out, /horn\.png.*not listed/);
 });
 
-test("dotfiles and non-image files in art/ are ignored", () => {
-  const r = run({ images: ["art/horn.png"], art: { "horn.png": png(), ".DS_Store": Buffer.from("x"), "CREDITS.txt": Buffer.from("me") } });
+test("OS litter in art/ is ignored", () => {
+  const r = run({ images: ["art/horn.png"], art: { "horn.png": png(), ".DS_Store": Buffer.from("x"), "Thumbs.db": Buffer.from("x") } });
   assert.equal(r.code, 0, r.out);
+});
+
+test("an unlisted source file in art/ fails — it is published all the same", () => {
+  const svg = '<svg inkscape:export-filename="/home/someone/art/horn.png"/>';
+  const r = run({ images: ["art/horn.png"], art: { "horn.png": png(), "horn.svg": Buffer.from(svg) } });
+  assert.equal(r.code, 1);
+  assert.match(r.out, /horn\.svg.*not listed/);
 });
 
 test("a module with art but no images: at all fails", () => {

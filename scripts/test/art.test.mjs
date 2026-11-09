@@ -73,6 +73,34 @@ test("XMP smuggling shapes are refused", () => {
   }
 });
 
+test("XMP side channels are refused: iTXt language tag, data after the zlib stream, non-vocabulary labels", async () => {
+  const { deflateSync } = await import("node:zlib");
+  const packet = Buffer.from(provenanceXmp(), "utf8");
+  const lang = chunk("iTXt", Buffer.concat([Buffer.from("XML:com.adobe.xmp\0\0\0someone\0\0"), packet]));
+  assert.notDeepEqual(inspectImage(png({ extra: [lang] }), ".png").problems, []);
+  const trailing = chunk("zTXt", Buffer.concat([Buffer.from("XML:com.adobe.xmp\0\0"), deflateSync(packet), Buffer.from("someone")]));
+  assert.notDeepEqual(inspectImage(png({ extra: [trailing] }), ".png").problems, []);
+  const clean = chunk("zTXt", Buffer.concat([Buffer.from("XML:com.adobe.xmp\0\0"), deflateSync(packet)]));
+  assert.deepEqual(inspectImage(png({ extra: [clean] }), ".png").problems, []);
+  const fake = provenanceXmp("http://cv.iptc.org/newscodes/digitalsourcetype/someoneJobIdDeadbeef");
+  assert.equal(isProvenanceOnlyXmp(fake), false);
+});
+
+test("JPEG: APP0 must be JFIF, unknown markers and truncation are problems", () => {
+  const seg = (marker, body) => {
+    const len = Buffer.alloc(2);
+    len.writeUInt16BE(body.length + 2);
+    return Buffer.concat([Buffer.from([0xff, marker]), len, body]);
+  };
+  const jpeg = (...segs) => Buffer.concat([Buffer.from([0xff, 0xd8]), ...segs, Buffer.from([0xff, 0xd9])]);
+  assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.from("Job ID: someone"))), ".jpg").problems, ["APP0 metadata"]);
+  assert.deepEqual(inspectImage(jpeg(seg(0xf5, Buffer.from("someone"))), ".jpg").problems, ["unexpected JPEG marker 0xf5"]);
+  assert.match(inspectImage(Buffer.from([0xff, 0xd8, 0xff, 0xe1, 0x00]), ".jpg").problems[0], /not a valid JPG/);
+  const adobe = seg(0xee, Buffer.from("Adobe\0\x64\0\0\0\0\x02", "latin1"));
+  assert.deepEqual(inspectImage(jpeg(adobe), ".jpg").problems, [], "CMYK Adobe APP14");
+  assert.deepEqual(inspectImage(Buffer.concat([jpeg(), Buffer.alloc(4)]), ".jpg").problems, [], "zero padding after EOI");
+});
+
 test("oversized display chunks are refused", () => {
   assert.deepEqual(inspectImage(png({ extra: [chunk("pHYs", Buffer.alloc(9 + 100))] }), ".png").problems, ["oversized `pHYs` chunk"]);
 });
@@ -168,6 +196,29 @@ test("16-bit, palette, wide-gamut and animated PNGs are stripped without re-enco
   const kept = (buf) => pngChunks(buf).map((c) => c.type);
   assert.ok(kept(await optimizePng(withIcc, null)).includes("iCCP"), "colour profile kept");
   assert.ok(kept(await optimizePng(animated, null)).includes("acTL"), "animation kept");
+});
+
+test("a generator's own AI label survives optimizing without --ai", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { mkdtempSync, writeFileSync, readFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "art-label-"));
+  try {
+    const f = join(dir, "mj.png");
+    writeFileSync(f, png({ extra: midjourneyChunks() }));
+    execFileSync(process.execPath, [new URL("../optimize-art.mjs", import.meta.url).pathname, f], { stdio: "ignore" });
+    assert.deepEqual(inspectImage(readFileSync(f), ".png"), { problems: [], sourceType: AI_SOURCE_TYPE });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("gamma and colour chunks are never dropped by recompression", async () => {
+  const src = await gradient();
+  const withGama = stripPng(src, null);
+  const gama = Buffer.concat([withGama.subarray(0, 33), chunk("gAMA", Buffer.from([0, 0, 0xb1, 0x8f])), withGama.subarray(33)]);
+  assert.ok(pngChunks(await optimizePng(gama, null)).some((c) => c.type === "gAMA"));
 });
 
 test("optimizePng without a label writes no metadata at all", async () => {

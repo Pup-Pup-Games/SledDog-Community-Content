@@ -25,7 +25,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, extname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { AI_SOURCE_TYPE, inspectImage, pngChunks, provenanceXmp, stripPng } from "./lib/art.mjs";
+import { AI_SOURCE_TYPE, inspectImage, pngChunks, pngSourceType, provenanceXmp, stripPng } from "./lib/art.mjs";
 
 function artFiles(dir) {
   const out = [];
@@ -42,7 +42,7 @@ function artFiles(dir) {
  *
  * Stripping is chunk-level, so it never touches a pixel. Recompression goes
  * through sharp, whose raw output is 8-bit sRGB — so it is attempted only for
- * plain 8-bit truecolour PNGs with no colour profile and no animation, where an
+ * plain 8-bit truecolour PNGs with no colour or gamma chunks and no animation, where an
  * 8-bit comparison really is the whole truth. Anything else (16-bit, palette,
  * grayscale, wide-gamut, APNG) is stripped and left otherwise as it was.
  */
@@ -52,7 +52,7 @@ export async function optimizePng(src, sourceType) {
   const chunkTypes = new Set(pngChunks(src).map((c) => c.type));
   const plain =
     meta.depth === "uchar" && !meta.isPalette && (meta.channels === 3 || meta.channels === 4) &&
-    !chunkTypes.has("iCCP") && !chunkTypes.has("acTL") && !chunkTypes.has("sBIT");
+    !["iCCP", "acTL", "sBIT", "gAMA", "cHRM", "sRGB"].some((t) => chunkTypes.has(t)); // sharp drops these
   if (!plain) return stripped;
   const { isOpaque } = await sharp(src).stats();
   let img = sharp(src);
@@ -80,7 +80,8 @@ async function main() {
     const rel = relative(process.cwd(), file);
     const src = readFileSync(file);
     const { problems, sourceType } = inspectImage(src, ".png");
-    const label = sourceType ?? (ai ? AI_SOURCE_TYPE : null);
+    // Carry the label from whatever packet the file has (Midjourney's included).
+    const label = pngSourceType(src) ?? (ai ? AI_SOURCE_TYPE : null);
     let out;
     try {
       out = await optimizePng(src, label);
