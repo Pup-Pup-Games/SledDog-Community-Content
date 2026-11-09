@@ -5,11 +5,17 @@
   "type": "module",
   "description": "Community-submitted, Sled Dog-ready third-party Stonetop content.",
   "scripts": {
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "art:optimize": "node scripts/optimize-art.mjs",
+    "test": "node --test scripts/test/*.test.mjs",
+    "check:images": "node scripts/check-images.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
   }
 }

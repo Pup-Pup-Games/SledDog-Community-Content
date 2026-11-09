@@ -98,12 +98,24 @@ does. Cards start hidden from players; the GM chooses when to show each one.
 Sled Dog serves them straight from this repo (GitHub raw, pinned to the commit
 your content was built at), so:
 
-- **Commit the image files themselves** — a path that isn't in the repo is dropped.
-- **Keep them reasonable** — a few hundred KB each; PNG, JPG, or WebP.
+- **Commit the image files themselves** — a path that isn't in the repo fails validation.
+- **Every file in `art/` must be listed in `images:`.** Art nothing references
+  would ship no gallery card, so the validator refuses it. Curate by what you
+  commit: ship the scene art and the portraits, and leave the storefront cover out
+  of `art/` altogether.
+- **2 MB per image at most** — GMs open the gallery on phones. PNG, JPG, or WebP.
+- **No identifying metadata.** Everything committed here is public for good, and
+  image generators and cameras embed a lot: your account name, the full prompt,
+  job ids, GPS, camera serials. The validator refuses any of it. For PNGs, run
+  `npm run art:optimize` — it strips the metadata without touching the
+  pixel data, and recompresses plain 8-bit images only when the result is smaller
+  and decodes to the same pixels. 16-bit, palette, wide-gamut and animated PNGs
+  are stripped and otherwise left exactly as they were. Add `-- --ai` for AI-generated art: it
+  keeps one label, the IPTC "trained algorithmic media" tag, which discloses
+  that the image is AI-made without identifying you. For JPG and WebP, export
+  without metadata from your editor.
 - **Only ship art you have the right to share.** Same rule as the content itself.
 - Paths are relative to your content folder — no leading `/`, no `..`.
-
-Curate the list. Ship the scene art and the portraits, not a storefront cover.
 
 ## Ground rules
 

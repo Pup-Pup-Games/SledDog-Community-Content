@@ -38,6 +38,6 @@ jobs:
           node-version: 20
       - name: Install validator dependencies
         working-directory: validator
-        run: npm install --no-audit --no-fund
+        run: npm ci --omit=dev --no-audit --no-fund
       - name: Validate content
         run: node validator/scripts/validate.mjs --content "content-src/${{ inputs.content_dir }}" --schema validator/schema

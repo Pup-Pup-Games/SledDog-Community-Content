@@ -99,6 +99,13 @@ author has art to ship:
 3. **Verify each file exists on disk** before you write the frontmatter — Sled Dog
    serves these from GitHub raw, so a path that isn't committed becomes a broken card.
    Never invent an image entry the author didn't give you.
+4. **Clean the art before validating.** Run `npm run art:optimize -- <file>` on each
+   PNG (add `--ai` when the author says it is AI-generated). It strips identifying
+   metadata — generator prompts, account names, job ids — without touching the pixel
+   data, and recompresses only when that is provably lossless. The validator refuses
+   an image that still carries metadata, one over 2 MB, or any image in `art/` that
+   `images:` does not list; for a JPG or WebP with metadata, ask the author to
+   re-export it without.
 
 When a GM installs the module, these arrive as a named folder of cards on their party's
 image gallery (hidden from players until the GM shows them). Only list art the author
@@ -107,7 +114,7 @@ says they have the right to share; don't list a storefront cover as gallery art.
 ## Notes
 
 - If `node_modules` isn't installed, run `npm install` first (the validator needs
-  `ajv`, `ajv-formats`, and `gray-matter`).
+  `ajv`, `ajv-formats`, and `gray-matter`; `art:optimize` needs `sharp`).
 - Cross-repo uniqueness and collisions with the *official* Stonetop catalog are
   checked later by Sled Dog's loader, not here. Here, only this repo's schema and
   intra-repo uniqueness are enforced.
