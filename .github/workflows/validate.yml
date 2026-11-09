@@ -17,3 +17,5 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Validate content/
         run: npm run validate
+      - name: Test the validator and art tools
+        run: npm test

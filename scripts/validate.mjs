@@ -19,11 +19,12 @@
  * checked later, in Sled Dog's content loader (which has every source). Here we
  * enforce schema compliance + uniqueness within this repo (namespaced by system).
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve, relative, extname } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, resolve, relative, extname, sep } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import matter from "gray-matter";
+import { MAX_ART_BYTES, inspectImage } from "./lib/art.mjs";
 
 /**
  * The kinds each system defines, mapped to their schema filename (under
@@ -193,6 +194,60 @@ for (const file of files) {
     report(rel, 1, `duplicate ${system} ${kind} \`${slug}\` — also defined in ${seen.get(id)}`);
   } else {
     seen.set(id, rel);
+  }
+  checkArt(file, rel, text, data);
+}
+
+/** Every file under a directory, as paths relative to it with `/` separators. */
+function filesUnder(dir, base = dir) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) out.push(...filesUnder(p, base));
+    else out.push(relative(base, p).split(sep).join("/"));
+  }
+  return out;
+}
+
+/**
+ * Gallery art is published from GitHub raw, permanently, so the checks here are
+ * about what leaves the repo: each `images[].file` must exist, be small enough
+ * for a phone, and carry no identifying metadata; and every file in the module's
+ * `art/` folder must be listed in `images:` — art that nothing references ships
+ * no gallery card, and that silent drop is how ten modules lost theirs.
+ */
+function checkArt(file, rel, text, data) {
+  const moduleDir = dirname(file);
+  const referenced = new Set();
+  for (const img of Array.isArray(data.images) ? data.images : []) {
+    if (typeof img?.file !== "string") continue;
+    referenced.add(img.file);
+    const line = lineOf(text, "/images");
+    const path = join(moduleDir, img.file);
+    if (img.file.startsWith("/") || img.file.split("/").includes("..")) {
+      report(rel, line, `images: \`${img.file}\` must be a path inside this module folder`);
+      continue;
+    }
+    if (!existsSync(path)) {
+      report(rel, line, `images: \`${img.file}\` does not exist`);
+      continue;
+    }
+    const buf = readFileSync(path);
+    const where = relative(process.cwd(), path);
+    if (buf.length > MAX_ART_BYTES) {
+      report(where, 1, `${(buf.length / 1048576).toFixed(1)} MB is over the ${MAX_ART_BYTES / 1048576} MB gallery limit — run \`npm run art:optimize\`, or downscale it`);
+    }
+    const { problems } = inspectImage(buf, extname(path));
+    if (problems.length) {
+      report(where, 1, `image carries identifying metadata (${problems.join(", ")}) — run \`npm run art:optimize\``);
+    }
+  }
+  const artDir = join(moduleDir, "art");
+  if (!existsSync(artDir)) return;
+  for (const f of filesUnder(artDir)) {
+    if (!referenced.has(`art/${f}`)) {
+      report(relative(process.cwd(), join(artDir, f)), 1, `art file is not listed in ${relative(process.cwd(), file)}'s \`images:\` — it would ship no gallery card. List it, or remove it`);
+    }
   }
 }
 
