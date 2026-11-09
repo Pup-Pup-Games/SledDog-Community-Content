@@ -15,7 +15,8 @@ import { inspectImage } from "./lib/art.mjs";
 const IMAGE = /\.(png|jpe?g|webp)$/i;
 /** Image formats this check cannot inspect. Refused outright rather than passed
  *  unread — SVG in particular carries editor paths with the author's username. */
-const UNINSPECTABLE = /\.(svg|svgz|gif|avif|heic|heif|tiff?|bmp|psd|xcf|kra|ai|eps)$/i;
+const UNINSPECTABLE =
+  /\.(svgz?|gif|avif|heic|heif|jxl|jp2|j2k|ico|tiff?|bmp|psd|psb|xcf|kra|clip|procreate|afphoto|afdesign|ai|eps|xmp|dng|raw|cr2|cr3|nef|arw|orf|rw2)$/i;
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 const files = tracked.filter((f) => IMAGE.test(f) && existsSync(f)); // a local deletion is not yet committed
 

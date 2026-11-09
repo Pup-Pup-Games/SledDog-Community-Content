@@ -94,6 +94,11 @@ test("JPEG: APP0 must be JFIF, unknown markers and truncation are problems", () 
   };
   const jpeg = (...segs) => Buffer.concat([Buffer.from([0xff, 0xd8]), ...segs, Buffer.from([0xff, 0xd9])]);
   assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.from("Job ID: someone"))), ".jpg").problems, ["APP0 metadata"]);
+  const jfifHeader = Buffer.from([0x4a, 0x46, 0x49, 0x46, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0]);
+  assert.deepEqual(inspectImage(jpeg(seg(0xe0, jfifHeader)), ".jpg").problems, [], "plain JFIF");
+  assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.concat([jfifHeader, Buffer.from("someone")]))), ".jpg").problems, ["APP0 metadata"], "JFIF + tail");
+  assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.from("JFXX\0\x10someone"))), ".jpg").problems, ["APP0 metadata"], "JFXX");
+  assert.deepEqual(inspectImage(jpeg(seg(0xdd, Buffer.from("someone"))), ".jpg").problems, ["malformed JPEG marker 0xdd"], "DRI body");
   assert.deepEqual(inspectImage(jpeg(seg(0xf5, Buffer.from("someone"))), ".jpg").problems, ["unexpected JPEG marker 0xf5"]);
   assert.match(inspectImage(Buffer.from([0xff, 0xd8, 0xff, 0xe1, 0x00]), ".jpg").problems[0], /not a valid JPG/);
   const adobe = seg(0xee, Buffer.from("Adobe\0\x64\0\0\0\0\x02", "latin1"));
@@ -124,7 +129,7 @@ test("JPEG EXIF and comments are refused; provenance XMP is allowed", () => {
   assert.deepEqual(inspectImage(jpeg(seg(0xfe, Buffer.from("hi"))), ".jpeg").problems, ["JPEG comment"]);
   assert.deepEqual(inspectImage(jpeg(seg(0xeb, Buffer.from("JPc2pa"))), ".jpg").problems, ["APP11 metadata"], "C2PA");
   assert.deepEqual(inspectImage(jpeg(seg(0xe2, Buffer.from("MPF\0"))), ".jpg").problems, ["APP2 metadata"], "MPF");
-  assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.from("JFIF\0")), seg(0xe2, Buffer.from("ICC_PROFILE\0\x01\x01"))), ".jpg").problems, []);
+  assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.from([0x4a, 0x46, 0x49, 0x46, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0])), seg(0xe2, Buffer.from("ICC_PROFILE\0\x01\x01"))), ".jpg").problems, []);
   const scan = Buffer.concat([seg(0xda, Buffer.from([1, 1, 0, 0, 0x3f, 0])), Buffer.from([0x12, 0xff, 0x00, 0x34, 0xff, 0xd0, 0x56])]);
   assert.deepEqual(inspectImage(jpeg(scan), ".jpg").problems, [], "entropy data with stuffing and restarts");
   const trailer = Buffer.concat([jpeg(scan), Buffer.from([0xff, 0xd8, 0xff, 0xe1]), Buffer.from("Exif GPS")]);

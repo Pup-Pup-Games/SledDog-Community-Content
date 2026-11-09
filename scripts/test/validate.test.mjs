@@ -61,6 +61,12 @@ test("OS litter in art/ is ignored", () => {
   assert.equal(r.code, 0, r.out);
 });
 
+test("a dotfile in art/ that is not OS litter fails", () => {
+  const r = run({ images: ["art/horn.png"], art: { "horn.png": png(), ".notes.txt": Buffer.from("someone") } });
+  assert.equal(r.code, 1);
+  assert.match(r.out, /\.notes\.txt.*not listed/);
+});
+
 test("an unlisted source file in art/ fails — it is published all the same", () => {
   const svg = '<svg inkscape:export-filename="/home/someone/art/horn.png"/>';
   const r = run({ images: ["art/horn.png"], art: { "horn.png": png(), "horn.svg": Buffer.from(svg) } });

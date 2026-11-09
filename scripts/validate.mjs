@@ -245,10 +245,10 @@ function checkArt(file, rel, text, data) {
   const artDir = join(moduleDir, "art");
   if (!existsSync(artDir)) return;
   for (const f of filesUnder(artDir)) {
-    // OS litter is ignored. Anything else unlisted is refused, not just images:
+    // OS litter (exact names) is ignored. Anything else unlisted is refused, not just images:
     // a source file left beside its export (an Inkscape SVG carries the author's
     // home-directory path) is published just the same.
-    if (f.split("/").some((seg) => seg.startsWith(".")) || /(^|\/)Thumbs\.db$/i.test(f)) continue;
+    if (/(^|\/)(\.DS_Store|Thumbs\.db)$/i.test(f)) continue;
     if (!referenced.has(`art/${f}`)) {
       report(relative(process.cwd(), join(artDir, f)), 1, `art file is not listed in ${relative(process.cwd(), file)}'s \`images:\` — it would ship no gallery card, and is published anyway. List it, or remove it`);
     }

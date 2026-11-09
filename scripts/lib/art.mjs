@@ -279,8 +279,13 @@ function inspectJpeg(buf) {
     if (2 + len > buf.length - i) throw new Error("truncated segment");
     const seg = buf.subarray(i + 4, i + 2 + len);
     if (marker === 0xe0) {
-      const id = seg.toString("latin1", 0, 5);
-      if (id !== "JFIF\0" && id !== "JFXX\0") problems.push("APP0 metadata");
+      // JFIF: identifier, version, density, then a thumbnail of exactly
+      // Xthumb × Ythumb RGB pixels — any other length is extra payload. JFXX
+      // extension thumbnails are refused outright.
+      const jfif = seg.toString("latin1", 0, 5) === "JFIF\0" && seg.length >= 14 && seg.length === 14 + 3 * seg[12] * seg[13];
+      if (!jfif) problems.push("APP0 metadata");
+    } else if ((marker === 0xdd || marker === 0xdc) && seg.length !== 2) {
+      problems.push(`malformed JPEG marker 0x${marker.toString(16)}`); // DRI / DNL bodies are 2 bytes
     } else if (marker === 0xe1) {
       if (seg.toString("latin1", 0, xmpHeader.length) === xmpHeader) {
         const xml = seg.subarray(xmpHeader.length).toString("utf8");
