@@ -7,6 +7,7 @@ import {
   isProvenanceOnlyXmp,
   provenanceXmp,
   pngChunks,
+  stripPng,
 } from "../lib/art.mjs";
 import { optimizePng } from "../optimize-art.mjs";
 import { MIDJOURNEY_XMP, chunk, iTXt, midjourneyChunks, png, tEXt } from "./fixtures.mjs";
@@ -46,12 +47,34 @@ test("a provenance-only XMP is allowed and reported, in tEXt or iTXt", () => {
 test("XMP is allowed only when DigitalSourceType is its sole property", () => {
   assert.equal(isProvenanceOnlyXmp(provenanceXmp()), true);
   assert.equal(isProvenanceOnlyXmp(MIDJOURNEY_XMP), false, "DigImageGUID is the job id");
-  assert.equal(isProvenanceOnlyXmp(MIDJOURNEY_XMP.replace(/\s*iptcExt:DigImageGUID="[^"]*"/, "")), true, "any IPTC prefix works");
+  assert.equal(
+    isProvenanceOnlyXmp(MIDJOURNEY_XMP.replace(/\s*iptcExt:DigImageGUID="[^"]*"/, "")),
+    false,
+    "only the exact packet the tools write passes; anything else is rewritten by art:optimize",
+  );
   const withCreator = provenanceXmp().replace("<rdf:Description", '<rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" dc:creator="someone"');
   assert.equal(isProvenanceOnlyXmp(withCreator), false);
   const asElement = provenanceXmp().replace("/></rdf:RDF>", "><dc:title>Secret</dc:title></rdf:Description></rdf:RDF>");
   assert.equal(isProvenanceOnlyXmp(asElement), false);
   assert.equal(isProvenanceOnlyXmp('<x:xmpmeta xmlns:x="adobe:ns:meta/"/>'), false, "an empty packet is not provenance");
+});
+
+test("XMP smuggling shapes are refused", () => {
+  const base = provenanceXmp();
+  for (const smuggled of [
+    base.replace("<rdf:Description", '<rdf:Description Author="someone"'),
+    base.replace('rdf:about=""', 'rdf:about="someone"'),
+    base.replace("</rdf:RDF>", "<!-- someone --></rdf:RDF>"),
+    base.replace("</rdf:RDF>", "<![CDATA[someone]]></rdf:RDF>"),
+    base + "someone",
+    provenanceXmp("http://cv.iptc.org/newscodes/digitalsourcetype/someone prompt text"),
+  ]) {
+    assert.equal(isProvenanceOnlyXmp(smuggled), false, smuggled);
+  }
+});
+
+test("oversized display chunks are refused", () => {
+  assert.deepEqual(inspectImage(png({ extra: [chunk("pHYs", Buffer.alloc(9 + 100))] }), ".png").problems, ["oversized `pHYs` chunk"]);
 });
 
 test("a malformed PNG is a problem, not a crash", () => {
@@ -71,6 +94,13 @@ test("JPEG EXIF and comments are refused; provenance XMP is allowed", () => {
   const jpeg = (...segs) => Buffer.concat([Buffer.from([0xff, 0xd8]), ...segs, Buffer.from([0xff, 0xd9])]);
   assert.deepEqual(inspectImage(jpeg(seg(0xe1, Buffer.from("Exif\0\0MM"))), ".jpg").problems, ["EXIF metadata"]);
   assert.deepEqual(inspectImage(jpeg(seg(0xfe, Buffer.from("hi"))), ".jpeg").problems, ["JPEG comment"]);
+  assert.deepEqual(inspectImage(jpeg(seg(0xeb, Buffer.from("JPc2pa"))), ".jpg").problems, ["APP11 metadata"], "C2PA");
+  assert.deepEqual(inspectImage(jpeg(seg(0xe2, Buffer.from("MPF\0"))), ".jpg").problems, ["APP2 metadata"], "MPF");
+  assert.deepEqual(inspectImage(jpeg(seg(0xe0, Buffer.from("JFIF\0")), seg(0xe2, Buffer.from("ICC_PROFILE\0\x01\x01"))), ".jpg").problems, []);
+  const scan = Buffer.concat([seg(0xda, Buffer.from([1, 1, 0, 0, 0x3f, 0])), Buffer.from([0x12, 0xff, 0x00, 0x34, 0xff, 0xd0, 0x56])]);
+  assert.deepEqual(inspectImage(jpeg(scan), ".jpg").problems, [], "entropy data with stuffing and restarts");
+  const trailer = Buffer.concat([jpeg(scan), Buffer.from([0xff, 0xd8, 0xff, 0xe1]), Buffer.from("Exif GPS")]);
+  assert.deepEqual(inspectImage(trailer, ".jpg").problems, ["data after the end of the image"], "a second image after EOI");
   const xmp = seg(0xe1, Buffer.concat([Buffer.from("http://ns.adobe.com/xap/1.0/\0"), Buffer.from(provenanceXmp())]));
   assert.deepEqual(inspectImage(jpeg(xmp), ".jpg"), { problems: [], sourceType: AI_SOURCE_TYPE });
 });
@@ -81,6 +111,13 @@ test("WebP EXIF is refused", () => {
   size.writeUInt32LE(4 + exif.length);
   const webp = Buffer.concat([Buffer.from("RIFF"), size, Buffer.from("WEBP"), exif]);
   assert.deepEqual(inspectImage(webp, ".webp").problems, ["EXIF metadata"]);
+  const c2pa = Buffer.concat([Buffer.from("C2PA"), Buffer.from([2, 0, 0, 0]), Buffer.from("hi")]);
+  size.writeUInt32LE(4 + c2pa.length);
+  assert.deepEqual(inspectImage(Buffer.concat([Buffer.from("RIFF"), size, Buffer.from("WEBP"), c2pa]), ".webp").problems, ["`C2PA` chunk"]);
+  assert.deepEqual(
+    inspectImage(Buffer.concat([Buffer.from("RIFF"), size, Buffer.from("WEBP"), c2pa, Buffer.from("trailer")]), ".webp").problems,
+    ["data after the end of the image", "`C2PA` chunk"],
+  );
 });
 
 test("unsupported image types are refused", () => {
@@ -96,15 +133,55 @@ test("optimizePng strips identifying metadata, keeps the AI label, and keeps eve
   assert.ok(a.equals(b));
 });
 
+/** An uncompressed 64×64 RGBA gradient — big enough that recompression wins. */
+async function gradient(alpha = 255) {
+  const raw = Buffer.alloc(64 * 64 * 4);
+  for (let i = 0; i < 64 * 64; i++) raw.set([i % 64 * 4, (i >> 6) * 4, 128, alpha], i * 4);
+  return sharp(raw, { raw: { width: 64, height: 64, channels: 4 } }).png({ compressionLevel: 0 }).toBuffer();
+}
+
 test("optimizePng drops an all-opaque alpha channel but keeps real transparency", async () => {
-  const opaque = await sharp(await optimizePng(png(), null)).metadata();
+  const opaque = await sharp(await optimizePng(await gradient(), null)).metadata();
   assert.equal(opaque.channels, 3);
-  const translucent = await sharp(await optimizePng(png({ alpha: 128 }), null)).metadata();
+  const translucent = await sharp(await optimizePng(await gradient(128), null)).metadata();
   assert.equal(translucent.channels, 4);
+});
+
+test("optimizePng never makes a file bigger than stripping alone", async () => {
+  for (const src of [png({ extra: midjourneyChunks() }), await gradient()]) {
+    assert.ok((await optimizePng(src, null)).length <= stripPng(src, null).length);
+  }
+});
+
+test("16-bit, palette, wide-gamut and animated PNGs are stripped without re-encoding", async () => {
+  const idat = (buf) => Buffer.concat(pngChunks(buf).filter((c) => c.type === "IDAT").map((c) => c.data));
+  const sixteen = await sharp(Buffer.alloc(8 * 8 * 6, 0x5a), { raw: { width: 8, height: 8, channels: 3 } })
+    .toColourspace("rgb16").png().toBuffer();
+  const palette = await sharp(await gradient()).png({ palette: true, colours: 16 }).toBuffer();
+  const withIcc = png({ extra: [chunk("iCCP", Buffer.from("WideGamut\0\0junk")), ...midjourneyChunks()] });
+  const animated = png({ extra: [chunk("acTL", Buffer.alloc(8)), chunk("fcTL", Buffer.alloc(26)), ...midjourneyChunks()] });
+  for (const src of [sixteen, palette, withIcc, animated]) {
+    const out = await optimizePng(src, AI_SOURCE_TYPE);
+    assert.deepEqual(inspectImage(out, ".png").problems, []);
+    assert.ok(idat(out).equals(idat(src)), "pixel data copied byte for byte");
+  }
+  const kept = (buf) => pngChunks(buf).map((c) => c.type);
+  assert.ok(kept(await optimizePng(withIcc, null)).includes("iCCP"), "colour profile kept");
+  assert.ok(kept(await optimizePng(animated, null)).includes("acTL"), "animation kept");
 });
 
 test("optimizePng without a label writes no metadata at all", async () => {
   const out = await optimizePng(png({ extra: midjourneyChunks() }), null);
   const types = pngChunks(out).map((c) => c.type).filter((t) => t !== "IDAT");
   assert.deepEqual(types.filter((t) => !["IHDR", "IEND", "pHYs"].includes(t)), []);
+});
+
+test("real encoder output parses clean, and real EXIF is caught", async () => {
+  const base = sharp(png());
+  for (const [ext, enc] of [[".jpg", (s) => s.jpeg()], [".jpg", (s) => s.jpeg({ progressive: true })], [".webp", (s) => s.webp()], [".webp", (s) => s.webp({ lossless: true })]]) {
+    const clean = await enc(base.clone()).toBuffer();
+    assert.deepEqual(inspectImage(clean, ext).problems, [], `clean ${ext}`);
+    const tagged = await enc(base.clone().withExif({ IFD0: { Artist: "someone" } })).toBuffer();
+    assert.ok(inspectImage(tagged, ext).problems.includes("EXIF metadata"), `EXIF ${ext}`);
+  }
 });

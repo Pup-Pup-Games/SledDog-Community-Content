@@ -27,9 +27,13 @@ const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0
 /** PNG chunks that describe pixels or display, never people. Anything else —
  *  tEXt, zTXt, iTXt (other than a provenance-only XMP), eXIf, tIME, private
  *  chunks — is refused. */
-const PNG_ALLOWED_CHUNKS = new Set([
+export const PNG_ALLOWED_CHUNKS = new Set([
   "IHDR", "PLTE", "IDAT", "IEND", "tRNS", "gAMA", "cHRM", "sRGB", "iCCP", "sBIT", "pHYs", "bKGD",
+  "acTL", "fcTL", "fdAT", // APNG animation frames
 ]);
+
+/** Largest legitimate body for each fixed-format display chunk. */
+const PNG_CHUNK_MAX = { IHDR: 13, tRNS: 256, gAMA: 4, cHRM: 32, sRGB: 1, sBIT: 4, pHYs: 9, bKGD: 6, acTL: 8, fcTL: 26 };
 
 /** The XMP packet the optimizer writes: provenance and nothing else. */
 export function provenanceXmp(sourceType = AI_SOURCE_TYPE) {
@@ -42,46 +46,77 @@ export function provenanceXmp(sourceType = AI_SOURCE_TYPE) {
   );
 }
 
+/** A DigitalSourceType value from the IPTC controlled vocabulary. */
+const SOURCE_TYPE_VOCAB = /^http:\/\/cv\.iptc\.org\/newscodes\/digitalsourcetype\/[A-Za-z]+$/;
+
 /** The DigitalSourceType value in an XMP packet, or null. Any namespace prefix
- *  bound to the IPTC extension namespace counts (Midjourney uses `iptcExt:`). */
+ *  bound to the IPTC extension namespace counts (Midjourney uses `iptcExt:`).
+ *  Only a value from the IPTC vocabulary is returned — this is what the optimizer
+ *  carries forward, so free text cannot ride along in it. */
 export function digitalSourceType(xml) {
   const prefixes = [...xml.matchAll(/xmlns:([\w.-]+)\s*=\s*"([^"]*)"/g)]
     .filter((m) => m[2] === IPTC_EXT_NS)
     .map((m) => m[1]);
   for (const p of prefixes) {
     const esc = p.replace(/[.-]/g, "\\$&");
-    const attr = xml.match(new RegExp(`${esc}:DigitalSourceType\\s*=\\s*"([^"]*)"`));
-    if (attr) return attr[1];
-    const el = xml.match(new RegExp(`<${esc}:DigitalSourceType>([^<]*)</${esc}:DigitalSourceType>`));
-    if (el) return el[1].trim();
+    const m =
+      xml.match(new RegExp(`${esc}:DigitalSourceType\\s*=\\s*"([^"]*)"`)) ??
+      xml.match(new RegExp(`<${esc}:DigitalSourceType>([^<]*)</${esc}:DigitalSourceType>`));
+    if (m && SOURCE_TYPE_VOCAB.test(m[1].trim())) return m[1].trim();
   }
   return null;
 }
 
 /**
- * True when an XMP packet carries nothing but a DigitalSourceType. Checked by
- * allow-list: every qualified element and attribute name must be structural
- * XMP/RDF, a namespace declaration, or the provenance property itself.
+ * True when an XMP packet is exactly the provenance packet the tools write
+ * (`provenanceXmp`, here and in Content-Forge's art_clean.py). Matching the
+ * whole packet, rather than allow-listing names inside it, leaves no corner —
+ * comments, CDATA, unprefixed attributes, rdf:about values — for text to hide in.
+ * Anything else is refused, and `npm run art:optimize` rewrites it.
  */
 export function isProvenanceOnlyXmp(xml) {
-  const iptcPrefixes = new Set(
-    [...xml.matchAll(/xmlns:([\w.-]+)\s*=\s*"([^"]*)"/g)].filter((m) => m[2] === IPTC_EXT_NS).map((m) => m[1]),
-  );
-  // Text content between tags is a value — only the provenance element may have one.
-  const body = xml.replace(/<\?xpacket[^>]*\?>/g, "");
-  for (const m of body.matchAll(/>([^<]*)</g)) {
-    if (m[1].trim() && digitalSourceType(xml) !== m[1].trim()) return false;
+  const type = digitalSourceType(xml);
+  return type !== null && xml === provenanceXmp(type);
+}
+
+const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
+  let c = n;
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  return c >>> 0;
+});
+function crc32(buf) {
+  let c = 0xffffffff;
+  for (const b of buf) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+/** Serialize one PNG chunk. */
+export function pngChunk(type, data) {
+  const body = Buffer.concat([Buffer.from(type, "latin1"), Buffer.from(data)]);
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(body.length - 4);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body));
+  return Buffer.concat([len, body, crc]);
+}
+
+/**
+ * Rebuild a PNG keeping only pixel and display chunks, plus a provenance XMP
+ * when `sourceType` is given. Works on whole chunks — IDAT is copied byte for
+ * byte — so it is lossless for every PNG: 16-bit, palette, wide-gamut, animated.
+ * This mirrors `strip_png` in Content-Forge's art_clean.py.
+ */
+export function stripPng(buf, sourceType) {
+  const out = [buf.subarray(0, 8)];
+  for (const { type, data } of pngChunks(buf)) {
+    if (!PNG_ALLOWED_CHUNKS.has(type)) continue;
+    out.push(pngChunk(type, data));
+    if (type === "IHDR" && sourceType) {
+      const itxt = Buffer.concat([Buffer.from(`${XMP_KEYWORD}\0\0\0\0\0`, "latin1"), Buffer.from(provenanceXmp(sourceType), "utf8")]);
+      out.push(pngChunk("iTXt", itxt));
+    }
   }
-  for (const m of body.matchAll(/<\/?([\w.-]+:[\w.-]+)|\s([\w.-]+:[\w.-]+)\s*=/g)) {
-    const name = m[1] ?? m[2];
-    const [prefix, local] = name.split(":");
-    if (prefix === "xmlns") continue;
-    if (name === "x:xmpmeta" || name === "x:xmptk") continue;
-    if (name === "rdf:RDF" || name === "rdf:Description" || name === "rdf:about") continue;
-    if (iptcPrefixes.has(prefix) && local === "DigitalSourceType") continue;
-    return false;
-  }
-  return digitalSourceType(xml) !== null;
+  return Buffer.concat(out);
 }
 
 /** Parse a PNG into its chunks: [{ type, data }]. Throws on a malformed file. */
@@ -106,8 +141,10 @@ export function pngChunks(buf) {
 function pngText(type, data) {
   const nul = data.indexOf(0);
   const keyword = data.toString("latin1", 0, nul);
-  if (type === "tEXt") return { keyword, text: data.toString("latin1", nul + 1) };
-  if (type === "zTXt") return { keyword, text: inflateSync(data.subarray(nul + 2)).toString("latin1") };
+  // XMP is UTF-8 by spec, whichever chunk type carries it; other text is Latin-1.
+  const enc = keyword === XMP_KEYWORD ? "utf8" : "latin1";
+  if (type === "tEXt") return { keyword, text: data.toString(enc, nul + 1) };
+  if (type === "zTXt") return { keyword, text: inflateSync(data.subarray(nul + 2)).toString(enc) };
   // iTXt: keyword\0 compressionFlag compressionMethod languageTag\0 translatedKeyword\0 text
   const compressed = data[nul + 1] === 1;
   let j = data.indexOf(0, nul + 3);
@@ -139,7 +176,12 @@ function inspectPng(buf) {
     return { problems: [`not a valid PNG: ${e.message}`], sourceType };
   }
   for (const { type, data } of chunks) {
-    if (PNG_ALLOWED_CHUNKS.has(type)) continue;
+    if (PNG_ALLOWED_CHUNKS.has(type)) {
+      // Display chunks have small, fixed sizes; an oversized one is a hiding place.
+      const max = PNG_CHUNK_MAX[type];
+      if (max !== undefined && data.length > max) problems.push(`oversized \`${type}\` chunk`);
+      continue;
+    }
     if (type === "tEXt" || type === "zTXt" || type === "iTXt") {
       let t;
       try {
@@ -160,47 +202,73 @@ function inspectPng(buf) {
   return { problems, sourceType };
 }
 
+/**
+ * JPEG: walk every marker segment, through each scan, to the first EOI. Allowed:
+ * APP0 (JFIF), APP2 ICC_PROFILE, and a provenance-only APP1 XMP. Refused: EXIF,
+ * every other APPn (C2PA in APP11, MPF in APP2, vendor blocks), comments, and any
+ * bytes after EOI — where phones append a second image with its own EXIF and GPS.
+ */
 function inspectJpeg(buf) {
   const problems = [];
   let sourceType = null;
   if (buf[0] !== 0xff || buf[1] !== 0xd8) return { problems: ["not a valid JPEG"], sourceType };
+  const xmpHeader = "http://ns.adobe.com/xap/1.0/\0";
   let i = 2;
-  while (i + 4 <= buf.length && buf[i] === 0xff) {
+  for (;;) {
+    if (i + 2 > buf.length || buf[i] !== 0xff) return { problems: [...problems, "not a valid JPEG: truncated"], sourceType };
     const marker = buf[i + 1];
-    if (marker === 0xda || marker === 0xd9) break; // start of scan / end of image
+    if (marker === 0xff) { i++; continue; } // fill byte
+    if (marker === 0xd9) { i += 2; break; } // EOI
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; } // no length
     const len = buf.readUInt16BE(i + 2);
     const seg = buf.subarray(i + 4, i + 2 + len);
-    if (marker === 0xe1) {
-      const xmpHeader = "http://ns.adobe.com/xap/1.0/\0";
+    if (marker === 0xe0) {
+      // JFIF/JFXX header — no free text.
+    } else if (marker === 0xe1) {
       if (seg.toString("latin1", 0, xmpHeader.length) === xmpHeader) {
         const xml = seg.subarray(xmpHeader.length).toString("utf8");
         if (isProvenanceOnlyXmp(xml)) sourceType = digitalSourceType(xml);
         else problems.push("XMP carries more than an AI-provenance label");
-      } else problems.push("EXIF metadata");
-    } else if (marker === 0xed) problems.push("IPTC/Photoshop metadata");
-    else if (marker === 0xfe) problems.push("JPEG comment");
+      } else problems.push(seg.toString("latin1", 0, 4) === "Exif" ? "EXIF metadata" : "APP1 metadata");
+    } else if (marker === 0xe2 && seg.toString("latin1", 0, 12) === "ICC_PROFILE\0") {
+      // colour profile
+    } else if (marker >= 0xe0 && marker <= 0xef) {
+      problems.push(`APP${marker - 0xe0} metadata`);
+    } else if (marker === 0xfe) {
+      problems.push("JPEG comment");
+    }
     i += 2 + len;
+    if (marker === 0xda) {
+      // Entropy-coded data runs to the next marker that is not stuffing (FF00) or a restart.
+      while (i + 1 < buf.length && !(buf[i] === 0xff && buf[i + 1] !== 0x00 && !(buf[i + 1] >= 0xd0 && buf[i + 1] <= 0xd7))) i++;
+    }
   }
+  if (i < buf.length) problems.push("data after the end of the image");
   return { problems, sourceType };
 }
+
+/** WebP chunks that are image data, never people. */
+const WEBP_ALLOWED_CHUNKS = new Set(["VP8 ", "VP8L", "VP8X", "ALPH", "ANIM", "ANMF", "ICCP"]);
 
 function inspectWebp(buf) {
   const problems = [];
   let sourceType = null;
-  if (buf.toString("latin1", 0, 4) !== "RIFF" || buf.toString("latin1", 8, 12) !== "WEBP") {
+  if (buf.length < 12 || buf.toString("latin1", 0, 4) !== "RIFF" || buf.toString("latin1", 8, 12) !== "WEBP") {
     return { problems: ["not a valid WebP"], sourceType };
   }
+  const end = 8 + buf.readUInt32LE(4);
+  if (end !== buf.length) problems.push("data after the end of the image");
   let i = 12;
-  while (i + 8 <= buf.length) {
+  while (i + 8 <= Math.min(end, buf.length)) {
     const type = buf.toString("latin1", i, i + 4);
     const len = buf.readUInt32LE(i + 4);
     const data = buf.subarray(i + 8, i + 8 + len);
-    if (type === "EXIF") problems.push("EXIF metadata");
-    else if (type === "XMP ") {
+    if (type === "XMP ") {
       const xml = data.toString("utf8");
       if (isProvenanceOnlyXmp(xml)) sourceType = digitalSourceType(xml);
       else problems.push("XMP carries more than an AI-provenance label");
-    }
+    } else if (type === "EXIF") problems.push("EXIF metadata");
+    else if (!WEBP_ALLOWED_CHUNKS.has(type)) problems.push(`\`${type.trim()}\` chunk`);
     i += 8 + len + (len % 2);
   }
   return { problems, sourceType };

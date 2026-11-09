@@ -107,8 +107,10 @@ your content was built at), so:
 - **No identifying metadata.** Everything committed here is public for good, and
   image generators and cameras embed a lot: your account name, the full prompt,
   job ids, GPS, camera serials. The validator refuses any of it. For PNGs, run
-  `npm run art:optimize` — it strips the metadata and recompresses losslessly
-  (every pixel is checked unchanged). Add `-- --ai` for AI-generated art: it
+  `npm run art:optimize` — it strips the metadata without touching the
+  pixel data, and recompresses plain 8-bit images only when the result is smaller
+  and decodes to the same pixels. 16-bit, palette, wide-gamut and animated PNGs
+  are stripped and otherwise left exactly as they were. Add `-- --ai` for AI-generated art: it
   keeps one label, the IPTC "trained algorithmic media" tag, which discloses
   that the image is AI-made without identifying you. For JPG and WebP, export
   without metadata from your editor.

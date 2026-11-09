@@ -56,6 +56,11 @@ test("art in art/ that images: does not list fails — the silent drop", () => {
   assert.doesNotMatch(r.out, /horn\.png.*not listed/);
 });
 
+test("dotfiles and non-image files in art/ are ignored", () => {
+  const r = run({ images: ["art/horn.png"], art: { "horn.png": png(), ".DS_Store": Buffer.from("x"), "CREDITS.txt": Buffer.from("me") } });
+  assert.equal(r.code, 0, r.out);
+});
+
 test("a module with art but no images: at all fails", () => {
   const r = run({ art: { "horn.png": png() } });
   assert.equal(r.code, 1);

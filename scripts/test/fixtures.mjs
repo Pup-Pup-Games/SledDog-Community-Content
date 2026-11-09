@@ -1,27 +1,11 @@
 /** Build tiny, valid image files in memory so the tests own every byte. */
 import { deflateSync } from "node:zlib";
 
-const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
-  let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-  return c >>> 0;
-});
-function crc32(buf) {
-  let c = 0xffffffff;
-  for (const b of buf) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-}
+export { pngChunk as chunk } from "../lib/art.mjs";
+import { pngChunk as chunk } from "../lib/art.mjs";
 
-export function chunk(type, data) {
-  const body = Buffer.concat([Buffer.from(type, "latin1"), Buffer.from(data)]);
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(body.length - 4);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body));
-  return Buffer.concat([len, body, crc]);
-}
-
-export const tEXt = (keyword, text) => chunk("tEXt", Buffer.from(`${keyword}\0${text}`, "latin1"));
+export const tEXt = (keyword, text) =>
+  chunk("tEXt", Buffer.concat([Buffer.from(`${keyword}\0`, "latin1"), Buffer.from(text, keyword === "XML:com.adobe.xmp" ? "utf8" : "latin1")]));
 export const iTXt = (keyword, text) =>
   chunk("iTXt", Buffer.concat([Buffer.from(`${keyword}\0\0\0\0\0`, "latin1"), Buffer.from(text, "utf8")]));
 

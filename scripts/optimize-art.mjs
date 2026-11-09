@@ -2,13 +2,15 @@
 /**
  * Strip identifying metadata from gallery art and recompress it losslessly.
  *
- * For each PNG it: drops every metadata chunk (author, prompt, job id, creation
- * time, EXIF), drops the alpha channel when every pixel is opaque, recompresses
- * at maximum effort, and writes back an XMP packet holding ONLY the AI-provenance
- * label — kept if the file already had one, added with `--ai`. Decoded pixels are
- * compared before anything is written; a file whose pixels would change is
- * refused, not rewritten. Files already clean and no smaller recompressed are
- * left byte-for-byte alone, so the tool is safe to rerun.
+ * For each PNG it drops every metadata chunk (author, prompt, job id, creation
+ * time, EXIF) and writes back an XMP packet holding ONLY the AI-provenance label —
+ * kept if the file already had one, added with `--ai`. Stripping is chunk-level,
+ * so pixels cannot change. Plain 8-bit truecolour PNGs are then recompressed
+ * (an all-opaque alpha channel dropped, maximum effort) and the result is kept
+ * only if it is smaller and its decoded pixels match; anything else — 16-bit,
+ * palette, wide-gamut, animated — is stripped and otherwise left alone. Files
+ * already clean and no smaller recompressed are left byte-for-byte alone, so the
+ * tool is safe to rerun.
  *
  * Usage:
  *   npm run art:optimize                         # every content/**\/art/*.png
@@ -23,7 +25,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, extname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { AI_SOURCE_TYPE, inspectImage, provenanceXmp } from "./lib/art.mjs";
+import { AI_SOURCE_TYPE, inspectImage, pngChunks, provenanceXmp, stripPng } from "./lib/art.mjs";
 
 function artFiles(dir) {
   const out = [];
@@ -35,8 +37,23 @@ function artFiles(dir) {
   return out;
 }
 
-/** Losslessly re-encode a PNG with only the provenance label (if any). */
+/**
+ * Strip a PNG, then recompress it when that is provably lossless and smaller.
+ *
+ * Stripping is chunk-level, so it never touches a pixel. Recompression goes
+ * through sharp, whose raw output is 8-bit sRGB — so it is attempted only for
+ * plain 8-bit truecolour PNGs with no colour profile and no animation, where an
+ * 8-bit comparison really is the whole truth. Anything else (16-bit, palette,
+ * grayscale, wide-gamut, APNG) is stripped and left otherwise as it was.
+ */
 export async function optimizePng(src, sourceType) {
+  const stripped = stripPng(src, sourceType);
+  const meta = await sharp(src).metadata();
+  const chunkTypes = new Set(pngChunks(src).map((c) => c.type));
+  const plain =
+    meta.depth === "uchar" && !meta.isPalette && (meta.channels === 3 || meta.channels === 4) &&
+    !chunkTypes.has("iCCP") && !chunkTypes.has("acTL") && !chunkTypes.has("sBIT");
+  if (!plain) return stripped;
   const { isOpaque } = await sharp(src).stats();
   let img = sharp(src);
   if (isOpaque) img = img.removeAlpha();
@@ -48,7 +65,7 @@ export async function optimizePng(src, sourceType) {
     sharp(out).ensureAlpha().raw().toBuffer(),
   ]);
   if (!a.equals(b)) throw new Error("re-encoded pixels differ from the original");
-  return out;
+  return out.length < stripped.length ? out : stripped;
 }
 
 async function main() {

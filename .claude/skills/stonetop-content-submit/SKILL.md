@@ -101,10 +101,11 @@ author has art to ship:
    Never invent an image entry the author didn't give you.
 4. **Clean the art before validating.** Run `npm run art:optimize -- <file>` on each
    PNG (add `--ai` when the author says it is AI-generated). It strips identifying
-   metadata — generator prompts, account names, job ids — and recompresses without
-   changing a pixel. The validator refuses an image that still carries metadata, one
-   over 2 MB, or any file in `art/` that `images:` does not list; for a JPG or WebP
-   with metadata, ask the author to re-export it without.
+   metadata — generator prompts, account names, job ids — without touching the pixel
+   data, and recompresses only when that is provably lossless. The validator refuses
+   an image that still carries metadata, one over 2 MB, or any image in `art/` that
+   `images:` does not list; for a JPG or WebP with metadata, ask the author to
+   re-export it without.
 
 When a GM installs the module, these arrive as a named folder of cards on their party's
 image gallery (hidden from players until the GM shows them). Only list art the author
